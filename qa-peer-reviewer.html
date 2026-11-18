@@ -1,0 +1,2012 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#001c64" />
+<title>FBV Knowledge Assistant</title>
+<style>
+  :root {
+    --pp-blue-deep: #001c64;
+    --pp-blue: #003087;
+    --pp-blue-bright: #0070ba;
+    --pp-yellow: #ffc439;
+    --pp-yellow-soft: #fff4d2;
+    --ink: #0a0e27;
+    --ink-soft: #4a5275;
+    --paper: #fafbfc;
+    --paper-warm: #f7f4ed;
+    --line: #e6e8ef;
+    --line-strong: #c9cdd9;
+    --green: #21c66c;
+    --red: #d83b3b;
+    --bot-bubble: #ffffff;
+    --user-bubble: linear-gradient(135deg, #003087 0%, #001c64 100%);
+    --shadow-sm: 0 1px 2px rgba(0, 28, 100, 0.06), 0 1px 3px rgba(0, 28, 100, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 28, 100, 0.08), 0 2px 4px rgba(0, 28, 100, 0.04);
+    --shadow-lg: 0 24px 48px -12px rgba(0, 28, 100, 0.18);
+    --sb-w: 280px;
+    --bg-radial-1: rgba(255, 196, 57, 0.18);
+    --bg-radial-2: rgba(0, 112, 186, 0.10);
+    --bg-base: #f7f4ed;
+  }
+
+  /* Dark mode palette */
+  body.dark {
+    --pp-blue-deep: #5b8def;
+    --pp-blue: #4d8cf5;
+    --pp-blue-bright: #74a8ff;
+    --pp-yellow: #ffc439;
+    --pp-yellow-soft: rgba(255, 196, 57, 0.12);
+    --ink: #e6e9f5;
+    --ink-soft: #98a3c4;
+    --paper: #1a1f3a;
+    --paper-warm: #161a30;
+    --line: #2d3358;
+    --line-strong: #3d4470;
+    --bot-bubble: #1a1f3a;
+    --user-bubble: linear-gradient(135deg, #2d4ba8 0%, #1a3187 100%);
+    --bg-radial-1: rgba(255, 196, 57, 0.08);
+    --bg-radial-2: rgba(0, 112, 186, 0.12);
+    --bg-base: #0a0e22;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse at top left, var(--bg-radial-1), transparent 50%),
+      radial-gradient(ellipse at bottom right, var(--bg-radial-2), transparent 60%),
+      var(--bg-base);
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+  .app {
+    height: 100dvh;
+    display: grid;
+    grid-template-columns: var(--sb-w) 1fr;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* ========================= SIDEBAR ========================= */
+  .sidebar {
+    background: #001c64;
+    color: white;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    overflow-y: auto;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  body.dark .sidebar { background: #06091a; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+  .brand {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .brand-left {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 21px; letter-spacing: -0.02em;
+  }
+  .brand-mark {
+    width: 32px; height: 32px;
+    background: #ffc439; border-radius: 8px;
+    display: grid; place-items: center;
+    color: #001c64; font-weight: 700; font-size: 17px;
+    font-family: 'Instrument Sans', sans-serif;
+    box-shadow: 0 2px 8px rgba(255,196,57,0.4);
+  }
+  .sb-close {
+    display: none;
+    background: rgba(255,255,255,0.08); color: white; border: none;
+    width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+    align-items: center; justify-content: center;
+  }
+  .sb-close svg { width: 16px; height: 16px; }
+
+  /* Sidebar stats */
+  .sb-stats {
+    background: linear-gradient(135deg, rgba(255,196,57,0.18), rgba(255,196,57,0.04));
+    border: 1px solid rgba(255,196,57,0.25);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .sb-stats-title {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.5); font-weight: 600; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sb-stats-row { display: flex; gap: 10px; }
+  .stat {
+    flex: 1; text-align: center; padding: 6px; border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+  }
+  .stat-num {
+    font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600;
+    color: #ffc439; line-height: 1;
+  }
+  .stat-label {
+    font-size: 9.5px; color: rgba(255,255,255,0.6);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+  .progress-bar {
+    margin-top: 10px;
+    height: 5px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #ffc439, #ffae00);
+    border-radius: 99px; width: 0%;
+    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .sb-section h3 {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.5); font-weight: 600; margin-bottom: 10px;
+  }
+  .quick-list { display: flex; flex-direction: column; gap: 5px; }
+  .quick-list button {
+    text-align: left; background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.85);
+    padding: 10px 12px; border-radius: 9px;
+    font-size: 12.5px; font-family: inherit; cursor: pointer;
+    transition: all 0.18s ease; line-height: 1.35;
+    position: relative;
+  }
+  .quick-list button:hover, .quick-list button:active {
+    background: rgba(255,196,57,0.12);
+    border-color: rgba(255,196,57,0.4);
+    color: #ffc439;
+    transform: translateX(2px);
+  }
+  .quick-list button.visited {
+    background: rgba(33,198,108,0.08);
+    border-color: rgba(33,198,108,0.25);
+  }
+  .quick-list button.visited::after {
+    content: '✓';
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    color: #21c66c; font-size: 11px; font-weight: 700;
+  }
+
+  .sb-action-btn {
+    background: linear-gradient(135deg, #ffc439, #ffae00);
+    color: #001c64;
+    border: none; padding: 12px 14px;
+    border-radius: 10px;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(255,196,57,0.25);
+  }
+  .sb-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255,196,57,0.4);
+  }
+  .sb-action-btn svg { width: 15px; height: 15px; }
+
+  .sidebar-foot {
+    margin-top: auto;
+    font-size: 10.5px; color: rgba(255,255,255,0.4); line-height: 1.5;
+  }
+
+  /* ========================= MAIN ========================= */
+  .main { display: flex; flex-direction: column; height: 100dvh; min-width: 0; position: relative; }
+
+  .topbar {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    transition: background 0.4s ease;
+  }
+  body.dark .topbar { background: rgba(26, 31, 58, 0.7); }
+  .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  .mobile-menu-btn, .theme-toggle {
+    display: flex; align-items: center; justify-content: center;
+    background: var(--paper); border: 1px solid var(--line);
+    width: 38px; height: 38px; border-radius: 10px; cursor: pointer;
+    flex-shrink: 0; transition: all 0.18s ease;
+  }
+  .mobile-menu-btn { display: none; }
+  .mobile-menu-btn svg, .theme-toggle svg { width: 18px; height: 18px; color: var(--pp-blue); }
+  .theme-toggle:hover { background: var(--pp-yellow-soft); transform: rotate(15deg); }
+
+  .bot-avatar {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--pp-blue) 0%, var(--pp-blue-bright) 100%);
+    border-radius: 12px; display: grid; place-items: center;
+    position: relative; box-shadow: 0 4px 14px rgba(0,48,135,0.3); flex-shrink: 0;
+  }
+  .bot-avatar::after {
+    content: ''; position: absolute;
+    width: 10px; height: 10px;
+    background: var(--green); border: 2px solid white; border-radius: 50%;
+    bottom: -2px; right: -2px;
+  }
+  body.dark .bot-avatar::after { border-color: var(--paper); }
+  .bot-avatar svg { width: 20px; height: 20px; }
+  .bot-info { min-width: 0; }
+  .bot-info h2 {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px;
+    letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .bot-info p { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; }
+
+  /* Streak badge in topbar */
+  .streak-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--pp-yellow-soft);
+    border: 1px solid rgba(255,196,57,0.4);
+    color: var(--pp-blue);
+    padding: 5px 11px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 600;
+  }
+  body.dark .streak-badge { color: var(--pp-yellow); }
+  .streak-badge .fire {
+    font-size: 14px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  /* ========================= MESSAGES ========================= */
+  .messages {
+    flex: 1; overflow-y: auto;
+    padding: 24px 28px 8px;
+    display: flex; flex-direction: column; gap: 14px;
+    scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+  }
+  .messages::-webkit-scrollbar { width: 8px; }
+  .messages::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+
+  .msg {
+    display: flex; gap: 10px; max-width: 82%;
+    animation: msgIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+  }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 30px; height: 30px; border-radius: 9px;
+    display: grid; place-items: center; flex-shrink: 0;
+    font-weight: 600; font-size: 12px;
+  }
+  .msg.bot .msg-avatar { background: linear-gradient(135deg, var(--pp-blue), var(--pp-blue-bright)); color: white; }
+  .msg.bot .msg-avatar svg { width: 16px; height: 16px; }
+  .msg.user .msg-avatar { background: var(--pp-yellow); color: #001c64; }
+
+  .bubble {
+    padding: 12px 15px; border-radius: 14px;
+    line-height: 1.55; font-size: 14.5px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .msg.bot .bubble {
+    background: var(--bot-bubble); color: var(--ink);
+    border: 1px solid var(--line);
+    border-top-left-radius: 4px;
+  }
+  .msg.user .bubble {
+    background: var(--user-bubble); color: white;
+    border-top-right-radius: 4px;
+  }
+  .bubble strong { font-weight: 600; color: var(--pp-blue); }
+  body.dark .bubble strong { color: var(--pp-blue-bright); }
+  .msg.user .bubble strong { color: var(--pp-yellow); }
+  .bubble code {
+    background: var(--paper-warm); padding: 1px 6px; border-radius: 4px;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 12.5px; color: var(--pp-blue);
+  }
+  body.dark .bubble code { color: var(--pp-blue-bright); }
+  .msg.user .bubble code { background: rgba(255,255,255,0.15); color: var(--pp-yellow); }
+  .bubble ul, .bubble ol { padding-left: 20px; margin: 6px 0; }
+  .bubble li { margin: 4px 0; }
+  .bubble p + p { margin-top: 8px; }
+  .bubble p + ul, .bubble p + ol, .bubble ul + p, .bubble ol + p { margin-top: 4px; }
+  .bubble h4 {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 14.5px;
+    color: var(--pp-blue); margin: 10px 0 4px;
+  }
+  body.dark .bubble h4 { color: var(--pp-blue-bright); }
+  .bubble h4:first-child { margin-top: 0; }
+
+  /* Streaming cursor */
+  .stream-cursor {
+    display: inline-block;
+    width: 2px; height: 1em;
+    background: var(--pp-blue-bright);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 0.8s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Callout */
+  .callout {
+    background: var(--pp-yellow-soft); border-left: 3px solid var(--pp-yellow);
+    padding: 9px 12px; border-radius: 6px; margin: 8px 0;
+    font-size: 13.5px;
+  }
+  .callout strong { color: var(--pp-blue-deep); }
+  body.dark .callout strong { color: var(--pp-yellow); }
+
+  /* Bubble action bar (copy + reactions) */
+  .bubble-actions {
+    position: absolute; top: 6px; right: 6px;
+    display: flex; gap: 4px;
+    opacity: 0; transition: opacity 0.15s ease;
+  }
+  .msg.bot:hover .bubble-actions { opacity: 1; }
+  .b-act {
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(4px);
+    border: 1px solid var(--line);
+    width: 26px; height: 26px; border-radius: 7px; cursor: pointer;
+    display: grid; place-items: center;
+    transition: all 0.15s ease;
+  }
+  body.dark .b-act { background: rgba(26, 31, 58, 0.92); }
+  .b-act:hover { background: white; transform: scale(1.1); }
+  body.dark .b-act:hover { background: var(--paper); }
+  .b-act svg { width: 13px; height: 13px; color: var(--ink-soft); }
+  .b-act.up.active { background: var(--green); border-color: var(--green); }
+  .b-act.down.active { background: var(--red); border-color: var(--red); }
+  .b-act.up.active svg, .b-act.down.active svg, .b-act.copy.copied svg { color: white; }
+  .b-act.copy.copied { background: var(--green); border-color: var(--green); }
+
+  /* Follow-up chips */
+  .followups {
+    margin-top: 11px; padding-top: 9px;
+    border-top: 1px dashed var(--line);
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .followups-label {
+    font-size: 10.5px; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    width: 100%; margin-bottom: 2px;
+  }
+  .chip {
+    background: var(--pp-yellow-soft);
+    border: 1px solid rgba(255,196,57,0.5);
+    color: var(--pp-blue);
+    padding: 6px 11px; border-radius: 999px;
+    font-size: 12.5px; cursor: pointer; font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  body.dark .chip { color: var(--pp-yellow); }
+  .chip:hover, .chip:active {
+    background: var(--pp-yellow);
+    color: var(--pp-blue-deep);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Quiz */
+  .quiz-options { display: flex; flex-direction: column; gap: 7px; margin-top: 10px; }
+  .quiz-opt {
+    background: var(--bot-bubble); border: 1.5px solid var(--line);
+    border-radius: 10px; padding: 10px 14px;
+    text-align: left; font-family: inherit; font-size: 13.5px;
+    cursor: pointer; transition: all 0.18s ease;
+    line-height: 1.4;
+    display: flex; align-items: flex-start; gap: 10px;
+    color: var(--ink);
+  }
+  .quiz-opt:hover:not(:disabled) {
+    border-color: var(--pp-blue-bright);
+    background: var(--paper);
+  }
+  .quiz-opt-letter {
+    width: 22px; height: 22px;
+    background: var(--paper-warm); border-radius: 50%;
+    display: grid; place-items: center;
+    font-weight: 600; color: var(--pp-blue);
+    font-size: 12px; flex-shrink: 0;
+  }
+  body.dark .quiz-opt-letter { color: var(--pp-blue-bright); }
+  .quiz-opt.correct { border-color: var(--green); background: rgba(33,198,108,0.08); }
+  .quiz-opt.correct .quiz-opt-letter { background: var(--green); color: white; }
+  .quiz-opt.incorrect { border-color: var(--red); background: rgba(216,59,59,0.06); }
+  .quiz-opt.incorrect .quiz-opt-letter { background: var(--red); color: white; }
+  .quiz-opt:disabled { cursor: default; }
+
+  /* Source pill */
+  .source-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--paper); border: 1px solid var(--line);
+    color: var(--ink-soft);
+    padding: 3px 8px; border-radius: 999px;
+    font-size: 11.5px; margin-top: 8px;
+  }
+  .source-pill svg { width: 11px; height: 11px; }
+
+  /* Typing */
+  .typing {
+    display: inline-flex; gap: 4px; padding: 13px 17px; align-items: center;
+  }
+  .typing span {
+    width: 6.5px; height: 6.5px;
+    background: var(--pp-blue-bright); border-radius: 50%;
+    opacity: 0.4; animation: typing 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* ========================= WELCOME ========================= */
+  .welcome {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 20px 28px; text-align: center;
+    animation: fadeIn 0.5s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .welcome-mark {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--pp-blue) 0%, var(--pp-blue-bright) 100%);
+    border-radius: 20px; display: grid; place-items: center;
+    margin-bottom: 18px;
+    box-shadow: 0 10px 30px rgba(0,48,135,0.25);
+    position: relative;
+  }
+  .welcome-mark::before {
+    content: ''; position: absolute; inset: -6px;
+    border: 1.5px dashed rgba(0,112,186,0.3);
+    border-radius: 26px;
+    animation: spin 14s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .welcome-mark svg { width: 32px; height: 32px; color: white; }
+
+  .greeting {
+    font-size: 12.5px; color: var(--pp-blue-bright); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    margin-bottom: 6px;
+  }
+  .welcome h1 {
+    font-family: 'Fraunces', serif; font-weight: 600;
+    font-size: clamp(22px, 4vw, 30px); letter-spacing: -0.02em;
+    margin-bottom: 8px; line-height: 1.15;
+  }
+  .welcome h1 em { font-style: italic; color: var(--pp-blue-bright); }
+  .welcome p {
+    color: var(--ink-soft); font-size: clamp(13.5px, 2vw, 14.5px); line-height: 1.55;
+    max-width: 480px; margin-bottom: 22px;
+  }
+
+  .suggestions {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px; max-width: 620px; width: 100%;
+  }
+  .suggestion {
+    background: var(--bot-bubble);
+    border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px;
+    text-align: left; font-family: inherit; font-size: 13.5px;
+    cursor: pointer; transition: all 0.2s ease;
+    color: var(--ink); line-height: 1.4;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .suggestion:hover, .suggestion:active {
+    border-color: var(--pp-blue-bright);
+    background: linear-gradient(135deg, var(--bot-bubble), var(--pp-yellow-soft));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .suggestion-icon {
+    width: 28px; height: 28px;
+    background: var(--pp-yellow-soft); border-radius: 7px;
+    display: grid; place-items: center; flex-shrink: 0;
+    color: var(--pp-blue); font-weight: 600; font-size: 13px;
+  }
+  body.dark .suggestion-icon { color: var(--pp-yellow); }
+  .suggestion.highlight {
+    border-color: rgba(255,196,57,0.5);
+    background: linear-gradient(135deg, var(--bot-bubble), var(--pp-yellow-soft));
+    position: relative;
+  }
+  .suggestion.highlight::after {
+    content: 'NEW';
+    position: absolute; top: -6px; right: -6px;
+    background: var(--pp-yellow); color: var(--pp-blue-deep);
+    font-size: 9px; font-weight: 700;
+    padding: 2px 6px; border-radius: 999px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ========================= ATTACHMENTS ========================= */
+  .attachments-bar { padding: 0 28px 4px; display: none; }
+  .attachments-bar.has-files { display: block; }
+  .attachments-list {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 8px 10px; background: var(--bot-bubble);
+    border: 1px dashed var(--pp-blue-bright);
+    border-radius: 10px; font-size: 12.5px;
+  }
+  .attachments-label {
+    font-size: 10.5px; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    width: 100%; margin-bottom: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .attachments-label svg { width: 12px; height: 12px; }
+  .file-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--paper-warm); border: 1px solid var(--line);
+    color: var(--ink); padding: 5px 5px 5px 10px;
+    border-radius: 999px; font-size: 12.5px;
+    max-width: 240px; animation: chipIn 0.25s ease;
+  }
+  @keyframes chipIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+  .file-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
+  .file-chip-type {
+    background: var(--pp-blue); color: white;
+    font-size: 9.5px; text-transform: uppercase;
+    padding: 2px 5px; border-radius: 4px; letter-spacing: 0.05em; font-weight: 600;
+  }
+  .file-chip-remove {
+    background: transparent; border: none; color: var(--ink-soft);
+    cursor: pointer; width: 20px; height: 20px; border-radius: 50%;
+    display: grid; place-items: center; transition: all 0.15s;
+  }
+  .file-chip-remove:hover { background: var(--red); color: white; }
+  .file-chip-remove svg { width: 11px; height: 11px; }
+
+  /* ========================= COMPOSER ========================= */
+  .composer-wrap {
+    padding: 8px 28px 16px;
+    background: linear-gradient(to top, var(--bg-base) 65%, transparent);
+    position: relative;
+  }
+  .composer {
+    background: var(--bot-bubble); border: 1.5px solid var(--line);
+    border-radius: 16px;
+    padding: 6px;
+    display: flex; align-items: center; gap: 4px;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-md);
+  }
+  .composer:focus-within {
+    border-color: var(--pp-blue-bright);
+    box-shadow: 0 0 0 4px rgba(0,112,186,0.10), var(--shadow-md);
+  }
+
+  .attach-btn, .send-btn, .mic-btn {
+    background: transparent; border: none;
+    width: 38px; height: 38px; border-radius: 10px;
+    cursor: pointer; display: grid; place-items: center;
+    transition: all 0.18s ease; flex-shrink: 0;
+  }
+  .attach-btn, .mic-btn { color: var(--ink-soft); }
+  .attach-btn:hover, .attach-btn:active {
+    background: var(--paper-warm); color: var(--pp-blue);
+    transform: rotate(-15deg);
+  }
+  body.dark .attach-btn:hover { color: var(--pp-blue-bright); }
+  .attach-btn svg, .mic-btn svg { width: 18px; height: 18px; }
+  .mic-btn:hover { background: var(--paper-warm); color: var(--pp-blue); }
+  body.dark .mic-btn:hover { color: var(--pp-blue-bright); }
+  .mic-btn.listening {
+    background: var(--red); color: white;
+    animation: micPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes micPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(216,59,59,0.5); }
+    50% { box-shadow: 0 0 0 6px rgba(216,59,59,0); }
+  }
+
+  .composer input {
+    flex: 1; border: none; outline: none;
+    font-family: inherit; font-size: 15px;
+    padding: 10px 4px; background: transparent;
+    color: var(--ink); min-width: 0;
+  }
+  .composer input::placeholder { color: var(--ink-soft); }
+
+  .send-btn { background: var(--pp-blue); color: white; }
+  .send-btn:hover:not(:disabled), .send-btn:active:not(:disabled) {
+    background: var(--pp-blue-bright); transform: scale(1.05);
+  }
+  .send-btn:disabled { background: var(--line-strong); cursor: not-allowed; }
+  .send-btn svg { width: 16px; height: 16px; }
+
+  .composer-hint {
+    text-align: center; font-size: 11px; color: var(--ink-soft);
+    margin-top: 8px; letter-spacing: 0.02em;
+  }
+  .composer-hint kbd {
+    background: var(--bot-bubble); padding: 1px 6px;
+    border-radius: 4px; border: 1px solid var(--line);
+    font-family: inherit; font-size: 10px;
+  }
+
+  /* Autocomplete dropdown */
+  .autocomplete {
+    position: absolute;
+    bottom: calc(100% - 8px);
+    left: 28px; right: 28px;
+    background: var(--bot-bubble);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+    z-index: 30;
+  }
+  .autocomplete.show {
+    max-height: 240px;
+    opacity: 1;
+    pointer-events: all;
+  }
+  .ac-label {
+    padding: 8px 14px; font-size: 10.5px;
+    color: var(--ink-soft); text-transform: uppercase;
+    letter-spacing: 0.1em; font-weight: 600;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ac-label svg { width: 12px; height: 12px; }
+  .ac-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    font-size: 13.5px; color: var(--ink);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .ac-item:hover, .ac-item.selected {
+    background: var(--pp-yellow-soft);
+    color: var(--pp-blue);
+  }
+  body.dark .ac-item:hover, body.dark .ac-item.selected { color: var(--pp-yellow); }
+  .ac-item svg { width: 14px; height: 14px; color: var(--ink-soft); flex-shrink: 0; }
+
+  /* ========================= DROP OVERLAY ========================= */
+  .drop-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0, 28, 100, 0.85);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 1000; pointer-events: none; opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .drop-overlay.active { opacity: 1; pointer-events: all; }
+  .drop-box {
+    background: white; border: 3px dashed var(--pp-yellow);
+    border-radius: 24px; padding: 50px 70px;
+    text-align: center; box-shadow: var(--shadow-lg);
+    animation: bounce 0.4s ease;
+  }
+  body.dark .drop-box { background: var(--bot-bubble); color: var(--ink); }
+  @keyframes bounce { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .drop-box svg { width: 48px; height: 48px; color: var(--pp-blue); margin-bottom: 16px; }
+  body.dark .drop-box svg { color: var(--pp-blue-bright); }
+  .drop-box h3 {
+    font-family: 'Fraunces', serif; font-size: 26px;
+    color: var(--pp-blue-deep); margin-bottom: 6px;
+  }
+  body.dark .drop-box h3 { color: var(--ink); }
+  .drop-box p { color: var(--ink-soft); font-size: 14px; }
+
+  /* ========================= TOAST ========================= */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--pp-blue-deep);
+    color: white; padding: 12px 20px;
+    border-radius: 12px; font-size: 13.5px;
+    box-shadow: var(--shadow-lg); z-index: 2000;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex; align-items: center; gap: 10px;
+    max-width: 90vw;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--red); }
+  .toast.success { background: var(--green); }
+  .toast.achievement {
+    background: linear-gradient(135deg, #ffc439, #ffae00);
+    color: var(--pp-blue-deep);
+    font-weight: 600;
+  }
+  .toast svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* Achievement badge animation */
+  .achievement-badge {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white;
+    border: 3px solid var(--pp-yellow);
+    border-radius: 24px;
+    padding: 24px 36px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    z-index: 3000;
+    pointer-events: none;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    opacity: 0;
+  }
+  body.dark .achievement-badge { background: var(--bot-bubble); color: var(--ink); }
+  .achievement-badge.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  .achievement-badge .ab-icon { font-size: 42px; margin-bottom: 6px; }
+  .achievement-badge .ab-title {
+    font-family: 'Fraunces', serif; font-size: 18px;
+    color: var(--pp-blue); font-weight: 600;
+  }
+  body.dark .achievement-badge .ab-title { color: var(--pp-yellow); }
+  .achievement-badge .ab-desc { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+
+  /* ========================= BACKDROP ========================= */
+  .sb-backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 50;
+    backdrop-filter: blur(2px); opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .sb-backdrop.active { display: block; opacity: 1; }
+
+  /* ========================= CONFETTI CANVAS ========================= */
+  #confetti-canvas {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 9999;
+  }
+
+  /* ========================= TABLET ========================= */
+  @media (max-width: 1023px) {
+    :root { --sb-w: 240px; }
+    .messages, .composer-wrap, .attachments-bar { padding-left: 20px; padding-right: 20px; }
+    .topbar { padding-left: 16px; padding-right: 16px; }
+    .welcome { padding-left: 20px; padding-right: 20px; }
+    .bot-info h2 { font-size: 16px; }
+    .autocomplete { left: 20px; right: 20px; }
+  }
+
+  /* ========================= MOBILE ========================= */
+  @media (max-width: 767px) {
+    .app { grid-template-columns: 1fr; }
+    .mobile-menu-btn { display: flex; }
+    .sb-close { display: flex; }
+    .sidebar {
+      position: fixed; top: 0; bottom: 0; left: 0;
+      width: 280px; transform: translateX(-100%); z-index: 100;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .topbar { padding: 12px 16px; }
+    .streak-badge { display: none; }
+    .messages, .composer-wrap, .attachments-bar { padding-left: 14px; padding-right: 14px; }
+    .welcome { padding-left: 16px; padding-right: 16px; }
+    .msg { max-width: 92%; }
+    .suggestion { font-size: 13px; }
+    .composer-hint { font-size: 10.5px; }
+    .bubble-actions { opacity: 1; }
+    .drop-box { padding: 36px 28px; }
+    .drop-box h3 { font-size: 22px; }
+    .bubble { font-size: 14px; padding: 11px 14px; }
+    .autocomplete { left: 14px; right: 14px; }
+  }
+  @media (max-width: 380px) {
+    .bot-info p { display: none; }
+    .topbar { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- =================== SIDEBAR =================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <div class="brand-mark">P</div>
+        <span>FBV Assistant</span>
+      </div>
+      <button class="sb-close" id="sbClose" aria-label="Close sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Stats card -->
+    <div class="sb-stats">
+      <div class="sb-stats-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Your Progress
+      </div>
+      <div class="sb-stats-row">
+        <div class="stat">
+          <div class="stat-num" id="statTopics">0</div>
+          <div class="stat-label">Topics</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="statQuiz">0/0</div>
+          <div class="stat-label">Quiz</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="statStreak">0</div>
+          <div class="stat-label">🔥 Streak</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <button class="sb-action-btn" data-q="Give me a random practice scenario.">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+      Daily Challenge
+    </button>
+
+    <div class="sb-section">
+      <h3>The Basics</h3>
+      <div class="quick-list">
+        <button data-q="What is Facial Biometric Verification?" data-topic="definition">What is FBV?</button>
+        <button data-q="Why does Facial Biometric Verification matter?" data-topic="why_matters">Why it matters</button>
+        <button data-q="When is FBV triggered?" data-topic="when_triggered">When is it needed?</button>
+        <button data-q="How does the FBV process work step by step?" data-topic="how_it_works">How it works (5 steps)</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <h3>On The Job</h3>
+      <div class="quick-list">
+        <button data-q="What is my teammate experience for FBV?" data-topic="teammate_workflow">Teammate workflow</button>
+        <button data-q="What tips should I share with the customer?" data-topic="customer_tips">Customer tips</button>
+        <button data-q="What is the TID Shield case format?" data-topic="case_format">TID Shield case</button>
+        <button data-q="Walk me through Eve's scenario." data-topic="eve_scenario">Eve's scenario</button>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <h3>Practice & Resources</h3>
+      <div class="quick-list">
+        <button data-q="Quiz me with a practice scenario." data-topic="quiz">Practice scenarios</button>
+        <button data-q="What are the key learnings of this module?" data-topic="key_learnings">Key learnings</button>
+        <button data-q="What Knowledge Center resources are available?" data-topic="resources">KC resources</button>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">
+      Internal tool · For PayPal teammates.<br/>
+      <span style="color:rgba(255,196,57,0.7);">● Offline · Upload your own FAQs</span>
+    </div>
+  </aside>
+
+  <div class="sb-backdrop" id="sbBackdrop"></div>
+
+  <!-- =================== MAIN =================== -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="bot-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+            <circle cx="12" cy="11" r="3"/><path d="M7 17c1.5-2 3-3 5-3s3.5 1 5 3"/>
+          </svg>
+        </div>
+        <div class="bot-info">
+          <h2>FBV Knowledge Assistant</h2>
+          <p>Ask, upload, quiz yourself</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="streak-badge" id="streakBadge"><span class="fire">🔥</span><span id="streakBadgeText">0</span></div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="welcome" id="welcome">
+      <div class="welcome-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+          <path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+          <circle cx="12" cy="11" r="3"/><path d="M7 17c1.5-2 3-3 5-3s3.5 1 5 3"/>
+        </svg>
+      </div>
+      <div class="greeting" id="greeting">Welcome</div>
+      <h1>Ready to master <em>Facial Biometric Verification</em>?</h1>
+      <p>Ask, listen, or upload your own FAQs. Test yourself with practice scenarios. The more you explore, the more you'll see your streak grow. 🔥</p>
+
+      <div class="suggestions">
+        <button class="suggestion" data-q="What is Facial Biometric Verification and why does it matter?">
+          <span class="suggestion-icon">?</span>
+          <span><strong>The basics</strong><br/><span style="color:var(--ink-soft);font-size:12.5px">Quick 30-second intro</span></span>
+        </button>
+        <button class="suggestion" data-q="How does the FBV process work step by step?">
+          <span class="suggestion-icon">5</span>
+          <span><strong>5-step process</strong><br/><span style="color:var(--ink-soft);font-size:12.5px">From upload to verification</span></span>
+        </button>
+        <button class="suggestion highlight" data-q="Give me a random practice scenario.">
+          <span class="suggestion-icon">🎯</span>
+          <span><strong>Daily challenge</strong><br/><span style="color:var(--ink-soft);font-size:12.5px">Random scenario · Earn streak</span></span>
+        </button>
+        <button class="suggestion" data-q="What's my teammate workflow when a customer is in FBV?">
+          <span class="suggestion-icon">→</span>
+          <span><strong>Teammate workflow</strong><br/><span style="color:var(--ink-soft);font-size:12.5px">3 steps + customer tips</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="messages" id="messages" style="display:none;"></div>
+
+    <div class="attachments-bar" id="attachmentsBar">
+      <div class="attachments-list" id="attachmentsList">
+        <div class="attachments-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Knowledge Sources
+        </div>
+      </div>
+    </div>
+
+    <div class="composer-wrap">
+      <!-- Autocomplete dropdown -->
+      <div class="autocomplete" id="autocomplete">
+        <div class="ac-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Quick suggestions · Tab to accept
+        </div>
+        <div id="acList"></div>
+      </div>
+
+      <div class="composer">
+        <input type="file" id="fileInput" hidden accept=".txt,.md,.json,.csv,.pdf,.docx" multiple />
+        <button class="attach-btn" id="attachBtn" aria-label="Attach file" title="Attach files">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 17.93 8.8l-8.58 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        </button>
+        <input id="input" type="text" placeholder="Ask, attach a file, or tap 🎤…" autocomplete="off" />
+        <button class="mic-btn" id="micBtn" aria-label="Voice input" title="Voice input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="send-btn" id="send" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <div class="composer-hint">Press <kbd>Enter</kbd> to send · <kbd>Tab</kbd> for suggestions · Drag &amp; drop files anywhere</div>
+    </div>
+  </main>
+</div>
+
+<div class="drop-overlay" id="dropOverlay">
+  <div class="drop-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+    <h3>Drop to attach</h3>
+    <p>PDF · Word · Text · JSON · CSV</p>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg id="toastIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<div class="achievement-badge" id="achievementBadge">
+  <div class="ab-icon" id="abIcon">🏆</div>
+  <div class="ab-title" id="abTitle">Achievement</div>
+  <div class="ab-desc" id="abDesc">Description</div>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+/* ============================================================
+   KNOWLEDGE BASE
+   ============================================================ */
+const KB = [
+  { id: 'definition', keywords: ['what is fbv','what is facial','what\'s fbv','whats fbv','define fbv','define facial','explain fbv','explain facial','tell me about fbv','tell me about facial','what does fbv mean','meaning of fbv','overview','what is this','biometric identity verification','digital id'],
+    answer: `**Facial Biometric Identity Verification** is a super quick and easy way to make sure customers are safe from identity theft and fraud.\n\nIt's all about confirming that a real person is behind the digital account — their **'digital ID'** — and we can use that confirmation in various forms across PayPal.\n\nIn short, it compares the customer's **Photo ID** with a **selfie** through a fully automated process to verify they really are who they say they are.`,
+    followups: ['Why does it matter?', 'When is FBV triggered?', 'How does the 5-step process work?'] },
+  { id: 'why_matters', keywords: ['why matter','why does it matter','why important','importance','why use','purpose','reason','what for','benefit','benefits','pillar','pillars','build trust','accountability','compliance','convenience'],
+    answer: `Every customer who contacts PayPal is sharing their money and data with us. Here's **why FBV matters every time**:\n\n#### 🤝 Build Trust and Increase Engagement\nSafe customers come back. Verified customers are confident customers — and confident customers use PayPal more often.\n\n#### 🛡️ Accountability\nVerification isn't just a check, it's a commitment. Every time you verify, you're saying: *"I've got you"* — protecting the customer and upholding PayPal's integrity.\n\n#### 📋 Compliance\nThis isn't best practice, it's **required**. Verification is a core PayPal policy and mandatory in every interaction.\n\n#### ⚡ Convenience\nFaster login for customers — no need to type passwords.`,
+    followups: ['When is FBV triggered?', 'How does it work?', 'What are the key learnings?'] },
+  { id: 'objectives', keywords: ['objective','objectives','learning objective','what will i learn','what should i learn','what does this teach','learn from this module','goal of the course','course goal'],
+    answer: `By the end of this course, you'll be able to:\n\n- **Assist customers** in completing facial recognition identity checks.\n- **Manage failed or rejected** facial recognition attempts using the appropriate front-office actions and follow-up steps.`,
+    followups: ['What is FBV?', 'How does it work?', 'Walk me through Eve\'s scenario.'] },
+  { id: 'when_triggered', keywords: ['when','when is it triggered','when is fbv','trigger','triggered','when needed','when do customers','what causes','what prompts','scenario','scenarios','high risk','identity sensitive','what flows','use case','use cases','password reset','adding financial','adding a financial','account limitation','resolve limitation','resolving limitation'],
+    answer: `Facial biometric verification is triggered for **high-risk or identity-sensitive actions**, such as:\n\n- 🔑 **Resetting account password**\n- 💳 **Adding a financial account**\n- ⚠️ **Resolving account limitations**\n\n<div class="callout"><strong>Important:</strong> It is <strong>not</strong> triggered for a standard purchase.</div>`,
+    followups: ['How does the 5-step process work?', 'Walk me through Eve\'s scenario.', 'What\'s the teammate workflow?'] },
+  { id: 'not_triggered', keywords: ['not triggered','standard purchase','regular purchase','normal purchase','everyday','every purchase','always','for purchases'],
+    answer: `**FBV is not triggered for a standard purchase.**\n\nIt only kicks in for high-risk or identity-sensitive actions like:\n- Resetting an account password\n- Adding a financial account\n- Resolving account limitations`,
+    followups: ['When is FBV triggered?', 'Why does FBV matter?'] },
+  { id: 'how_it_works', keywords: ['how does it work','how does fbv work','how it works','how works','5 step','five step','process','steps','process work','workflow','behind the scenes','what happens','flow','procedure'],
+    answer: `The FBV process has **5 steps** — the first 2 are done by the customer, the last 3 are automated by the system.\n\n#### 👤 Customer steps\n1. **Upload Proof of Identity (POI)** — the customer scans/uploads their Photo ID.\n2. **Take a Selfie and Upload** — the customer scans their face.\n\n#### ⚙️ Automated steps\n3. **Shield Case is Created** — in the format \`TID-xx-yyyyy\`.\n4. **Automated Identity Matching** — the system matches POI ↔ profile data ↔ selfie.\n5. **Verification of Customer Identity** — the result determines whether the customer proceeds.\n\n<div class="callout"><strong>Note:</strong> This is a fully automated process — <strong>no manual intervention</strong> is required at any stage.</div>\n\n📘 For more, see **Knowledge Center article TEAM1716**.`,
+    followups: ['What\'s the teammate workflow?', 'What is the TID Shield case?', 'What tips should I share with the customer?'] },
+  { id: 'eve_scenario', keywords: ['eve','eve\'s','eves','customer scenario','customer journey','customer experience','journey','story','example','walk me through','what does the customer see','what the customer sees'],
+    answer: `Here's **Eve's scenario** — what a real customer experiences:\n\n1. Eve tries to log into PayPal on her phone. *"Let me just type in my password and I'm good to go!"* — but her password isn't working. She tries again. Still nothing.\n2. She taps **"Forgot your password?"** and enters her email to reset it.\n3. Instead of a simple reset link, PayPal shows: *"To keep your account secure, take a minute, and verify your info."*\n4. Eve is prompted: **"Verify your ID in just 2 steps"** — Step 1: Scan photo ID; Step 2: Scan face.\n5. She scans her ID and takes a selfie. The system checks her face against her ID, confirms it's really her, and lets her through.\n\nThis is FBV in action — **one of PayPal's most exciting and seamless security features**: keeping the highest standards of security while delivering an effortless experience.`,
+    followups: ['How does the 5-step process work?', 'When is FBV triggered?', 'What\'s the teammate workflow?'] },
+  { id: 'teammate_workflow', keywords: ['teammate','teammate experience','teammate workflow','agent','my workflow','my role','my steps','my side','agent side','what do i do','spark','activities','activity log','tether_enroll','tether enroll','as a teammate','as an agent','what i see','what should i see','identify fbv'],
+    answer: `When a customer contacts you about a pending FBV, follow these **3 steps**:\n\n#### Step 1 — Check the Activity log in Spark\nOpen the customer's account in Spark and go to the **Activities** section. You'll see whether they were enrolled in FBV — look for **\`Auth Challenge presented: TETHER_ENROLL\`**.\n\n#### Step 2 — Check for a Shield case\nLook for a Shield case in the format **\`TID-xx-yyyyy\`**.\n- TID appears as a paragraph or statement.\n- A Shield case is only created once the customer uploads documents for review.\n- Documents can be Accepted or Rejected (by teammates with training and permissions).\n\n<div class="callout"><strong>Note:</strong> Whether or not a Shield case exists, <strong>no action is required from you</strong>.</div>\n\n#### Step 3 — Guide the Customer\nThe system automatically guides the customer to retry — just like other Auth Flow challenges. Your role is to **reassure** the customer and encourage them to follow the on-screen instructions.\n\n💡 Want the tips you can share with the customer? Just ask!`,
+    followups: ['What tips should I share with the customer?', 'What is the TID Shield case?', 'What should I do if FBV fails?'] },
+  { id: 'customer_tips', keywords: ['tip','tips','advice','share with customer','tell the customer','customer tip','what should i tell','what to share','what to tell','help the customer','facial scan tip','document upload tip','glasses','lighting','app version','four corners','12 months','document quality'],
+    answer: `Here are the tips to share with your customer:\n\n#### 📸 Facial Scan\n- Ensure **good lighting**.\n- **Remove glasses, hats, and accessories** before scanning.\n- Make sure the **PayPal app is the latest version**.\n\n#### 📄 Document Upload\n- Position the ID so **all four corners are visible**.\n- Ensure the document is **clear and all information is readable**.\n- The document **should not be more than 12 months old**.`,
+    followups: ['What\'s the teammate workflow?', 'What is the TID Shield case?', 'Quiz me with a practice scenario.'] },
+  { id: 'spark_activity_log', keywords: ['spark','activity log','activities','tether_enroll','tether enroll','auth challenge','where do i look','where to check','how do i know','how to tell'],
+    answer: `In **Spark**, open the customer's account and go to the **Activities** section.\n\nIf the customer was enrolled in FBV, you'll see this entry:\n\n\`Auth Challenge presented: TETHER_ENROLL\`\n\nThat's your confirmation they were prompted for Facial Biometric Verification.`,
+    followups: ['What\'s the full teammate workflow?', 'What is the TID Shield case?'] },
+  { id: 'case_format', keywords: ['tid','case format','case number','case id','shield','shield case','tethered','tethered identity','what does tid','what is tid','tid mean','tid stand'],
+    answer: `When FBV runs, a **Shield case is created** in the format **\`TID-xx-yyyyy\`**.\n\n- **TID** stands for **Tethered Identity**.\n- TID may appear in Spark as a paragraph or statement.\n- A Shield case is **only created** once the customer uploads documents for review.\n- Documents can then be **Accepted or Rejected** — but only by teammates with the right training and permissions to accept or reject POI.\n\n<div class="callout"><strong>No action required:</strong> whether or not a Shield case exists, you don't need to do anything from your end.</div>`,
+    followups: ['What\'s the teammate workflow?', 'What should I do if FBV fails?'] },
+  { id: 'what_to_do', keywords: ['what should i do','what do i do','what do i need to do','action','my action','agent action','intervene','manual','manually','approve','override','fail','fails','failed','rejected','stuck','can\'t complete','cant complete','retry','try again','auth flow failed','escalate'],
+    answer: `**No manual action is required from you** — the FBV process is fully automated.\n\n- You **cannot manually approve or override** a biometric verification outcome.\n- If verification **fails** (Auth Flow Failed), the customer simply needs to **try again**, just like any other Auth Flow challenge.\n- Your role is to **reassure** the customer that the process is working as expected and **guide** them to follow the on-screen instructions.\n\n<div class="callout"><strong>Remember:</strong> Automated doesn't mean hands-off. <strong>Guide, stay, own.</strong></div>`,
+    followups: ['What tips should I share with the customer?', 'What\'s the teammate workflow?', 'Tell me about ownership and expectations.'] },
+  { id: 'ownership_expectations', keywords: ['ownership','demonstrate ownership','set expectations','expectations','soft skills','automated doesn\'t mean','guide stay own','presence','intervention','hand off','handoff'],
+    answer: `Two key behaviours every teammate should bring to an FBV contact:\n\n#### 💪 Demonstrate Ownership\nDon't hand off, stay present. Own the contact to completion. Sometimes the right action is simply knowing **when not to intervene**.\n\n#### 📣 Set Expectations\nTell the customer what's happening so they know exactly what comes next. A calm customer completes the process. A worried one doesn't.\n\n<div class="callout"><strong>Key idea:</strong> Automated doesn't mean absent. The system does the work — <em>you hold the experience</em>.</div>`,
+    followups: ['Quiz me with a practice scenario.', 'What\'s the teammate workflow?'] },
+  { id: 'quiz', keywords: ['quiz','practice','scenario question','assess','assessment','test me','question me','q1','q2','scenario based','random scenario','daily challenge','challenge'], answer: '__QUIZ__', followups: [] },
+  { id: 'scenario_1', keywords: ['question 1','q1','first question','first scenario','uploaded id and took selfie','customer calls','no action question'], answer: '__SCENARIO_1__', followups: [] },
+  { id: 'scenario_2', keywords: ['question 2','q2','second question','second scenario','sue','sue calls','worried','adding financial account question'], answer: '__SCENARIO_2__', followups: [] },
+  { id: 'key_learnings', keywords: ['key learning','key learnings','summary','summarize','recap','takeaway','takeaways','wrap up','wrapup','remember'],
+    answer: `Here's a quick summary of the module:\n\n- **Facial Biometric Verification is fully automated** — you cannot manually approve or override a biometric verification outcome.\n- For pending FBV, **check the Activity log**, confirm enrolment, and **reassure** the customer — the system handles the rest automatically (accept/reject POI is only for teammates with the right training and permission).\n- **Guide customers** through the FBV process to prevent fraud and protect both our customers and PayPal's integrity.\n\n<div class="callout">Guiding customers through FBV isn't just a process step. It's how you prevent fraud, protect real people, and uphold the integrity of PayPal while creating a seamless experience.</div>`,
+    followups: ['What KC resources are available?', 'Tell me about ownership and expectations.', 'Quiz me with a practice scenario.'] },
+  { id: 'resources', keywords: ['resource','resources','knowledge center','kc','team1716','help606','article','more information','more info','where can i learn more','further reading','documentation'],
+    answer: `Here are the **Knowledge Center resources** for more information:\n\n- 📘 **TEAM1716** — *What's facial biometric identity verification? (Tethered ID)*\n- 📘 **HELP606**\n\n(These are the official KC articles referenced in the course.)`,
+    followups: ['What are the key learnings?', 'What\'s the teammate workflow?'] },
+  { id: 'poi', keywords: ['poi','proof of identity','photo id','document','documents','what is poi','what does poi mean'],
+    answer: `**POI** stands for **Proof of Identity** — also called the **Photo ID**.\n\nThe customer uploads their POI as **Step 1** of the FBV process. The system then matches it against their selfie and PayPal profile data.\n\nWhen sharing tips with the customer about the POI:\n- Position the ID so **all four corners are visible**.\n- Ensure it's **clear and readable**.\n- The document **should not be more than 12 months old**.`,
+    followups: ['How does the 5-step process work?', 'What tips should I share with the customer?'] },
+  { id: 'selfie', keywords: ['selfie','face scan','facial scan','face','take a photo','take photo'],
+    answer: `The **selfie** is **Step 2** of the FBV process — the customer scans their face after uploading their Photo ID.\n\nTips to share with the customer for the facial scan:\n- Ensure **good lighting**.\n- **Remove glasses, hats, and accessories** before scanning.\n- Use the **latest version of the PayPal app**.`,
+    followups: ['How does the 5-step process work?', 'What tips should I share with the customer?'] }
+];
+
+const GREETINGS = ['hi','hello','hey','hiya','good morning','good afternoon','good evening','howdy','sup'];
+const THANKS = ['thanks','thank you','ty','thx','appreciate','cheers','thank u'];
+
+/* ============================================================
+   PRACTICE SCENARIOS
+   ============================================================ */
+const SCENARIOS = [
+  { id: 's1',
+    setup: `**Scenario 1**\n\nA customer calls saying: *"I uploaded my ID and took a selfie for Facial Biometric Verification."*\n\n**What action is required from you as a teammate?**`,
+    options: [
+      { letter: 'A', text: 'Manually compare the selfie and ID', correct: false, feedback: `❌ **Not quite.** Manually comparing is outside your front-office role. Ownership means knowing your boundaries, not overstepping them.` },
+      { letter: 'B', text: 'Contact the customer to confirm their documents were received', correct: false, feedback: `❌ **Not quite.** The system confirms receipt automatically — no need to add a manual confirmation step.` },
+      { letter: 'C', text: 'No action is required — the process is fully automated', correct: true, feedback: `✅ **Correct!**\n\nOnce the customer submits their ID and selfie, the system automatically performs the rest — **no teammate action needed**.\n\n**What to say:** *"Once you upload your ID and take your selfie, our system handles it automatically. I'll stay on the line with you while you complete it."*\n\n**Key learning:** Automated doesn't mean hands-off. **Guide, stay, own.**` },
+      { letter: 'D', text: 'Approve the documents in the case management system', correct: false, feedback: `❌ **Not quite.** No approval step exists here for front-office. Adding one delays the customer and creates confusion.` }
+    ] },
+  { id: 's2',
+    setup: `**Scenario 2**\n\nSue calls PayPal saying she was asked to scan her ID and take a selfie while trying to **add a financial account**. She's worried something is wrong with her account.\n\n**What do you tell her?**`,
+    options: [
+      { letter: 'A', text: 'Escalate the case to a senior teammate', correct: false, feedback: `❌ **Not quite.** There's nothing to escalate — this is a standard security prompt. Escalating without cause wastes time and amplifies Sue's concern.` },
+      { letter: 'B', text: 'Reassure her that this is a normal security step and guide her to complete the process', correct: true, feedback: `✅ **Correct!**\n\nThis is a standard security step — nothing is wrong with Sue's account.\n\n**What to say:** *"Sue, this is completely normal — PayPal asks for this to keep your account secure when adding a financial account. Let me walk you through it right now."*\n\n**Key learning:** Reassure first, then guide.` },
+      { letter: 'C', text: 'Ask her to visit a PayPal branch for manual verification', correct: false, feedback: `❌ **Not quite.** PayPal doesn't offer in-branch verification. This gives Sue inaccurate information and leaves her with no path forward.` },
+      { letter: 'D', text: 'Tell her to try resetting her password instead', correct: false, feedback: `❌ **Not quite.** This skips the verification step entirely and doesn't resolve her actual task.` }
+    ] }
+];
+
+/* ============================================================
+   STATE & PROGRESS TRACKING
+   ============================================================ */
+let lastScenarioServed = -1;
+let uploadedDocs = [];
+let docIdCounter = 0;
+const exploredTopics = new Set();
+let quizCorrect = 0;
+let quizTotal = 0;
+let quizStreak = 0;
+let bestStreak = 0;
+const TOTAL_TOPICS = KB.filter(e => !['quiz','scenario_1','scenario_2'].includes(e.id)).length;
+
+const achievements = {
+  firstTopic: { unlocked: false, icon: '🌱', title: 'First Steps', desc: 'Explored your first topic' },
+  fiveTopics: { unlocked: false, icon: '⭐', title: 'Getting Curious', desc: 'Explored 5 topics' },
+  allBasics: { unlocked: false, icon: '🎓', title: 'Foundation Built', desc: 'Covered all basics' },
+  firstQuiz: { unlocked: false, icon: '🎯', title: 'First Bullseye', desc: 'Got your first quiz right' },
+  hotStreak: { unlocked: false, icon: '🔥', title: 'On Fire', desc: '3-question streak' },
+  master: { unlocked: false, icon: '👑', title: 'FBV Master', desc: 'Explored every topic' }
+};
+
+/* ============================================================
+   DOM REFS
+   ============================================================ */
+const messagesEl = document.getElementById('messages');
+const welcomeEl = document.getElementById('welcome');
+const inputEl = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const attachBtn = document.getElementById('attachBtn');
+const fileInput = document.getElementById('fileInput');
+const attachmentsBar = document.getElementById('attachmentsBar');
+const attachmentsList = document.getElementById('attachmentsList');
+const sidebar = document.getElementById('sidebar');
+const sbBackdrop = document.getElementById('sbBackdrop');
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const sbClose = document.getElementById('sbClose');
+const dropOverlay = document.getElementById('dropOverlay');
+const toast = document.getElementById('toast');
+const toastMsg = document.getElementById('toastMsg');
+const toastIcon = document.getElementById('toastIcon');
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const micBtn = document.getElementById('micBtn');
+const greetingEl = document.getElementById('greeting');
+const streakBadge = document.getElementById('streakBadge');
+const streakBadgeText = document.getElementById('streakBadgeText');
+const statTopics = document.getElementById('statTopics');
+const statQuiz = document.getElementById('statQuiz');
+const statStreak = document.getElementById('statStreak');
+const progressFill = document.getElementById('progressFill');
+const autocomplete = document.getElementById('autocomplete');
+const acList = document.getElementById('acList');
+const achievementBadge = document.getElementById('achievementBadge');
+const abIcon = document.getElementById('abIcon');
+const abTitle = document.getElementById('abTitle');
+const abDesc = document.getElementById('abDesc');
+const confettiCanvas = document.getElementById('confetti-canvas');
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function normalize(s) { return s.toLowerCase().replace(/[^\w\s']/g, ' ').replace(/\s+/g, ' ').trim(); }
+function escapeHTML(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function renderMarkdown(text) {
+  const calloutPattern = /<div class="callout">[\s\S]*?<\/div>/g;
+  const callouts = [];
+  let placeholderText = text.replace(calloutPattern, (m) => { callouts.push(m); return `@@CALLOUT${callouts.length - 1}@@`; });
+  let safe = placeholderText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  safe = safe.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  const lines = safe.split('\n');
+  let out = '', inUl = false, inOl = false;
+  for (let line of lines) {
+    const h4 = line.match(/^####\s+(.+)/);
+    const ul = line.match(/^\s*[-•]\s+(.+)/);
+    const ol = line.match(/^\s*(\d+)\.\s+(.+)/);
+    if (h4) {
+      if (inUl) { out += '</ul>'; inUl = false; }
+      if (inOl) { out += '</ol>'; inOl = false; }
+      out += `<h4>${h4[1]}</h4>`;
+    } else if (ul) {
+      if (inOl) { out += '</ol>'; inOl = false; }
+      if (!inUl) { out += '<ul>'; inUl = true; }
+      out += `<li>${ul[1]}</li>`;
+    } else if (ol) {
+      if (inUl) { out += '</ul>'; inUl = false; }
+      if (!inOl) { out += '<ol>'; inOl = true; }
+      out += `<li>${ol[2]}</li>`;
+    } else {
+      if (inUl) { out += '</ul>'; inUl = false; }
+      if (inOl) { out += '</ol>'; inOl = false; }
+      if (line.trim()) out += `<p>${line}</p>`;
+    }
+  }
+  if (inUl) out += '</ul>';
+  if (inOl) out += '</ol>';
+  out = out.replace(/@@CALLOUT(\d+)@@/g, (_, i) => callouts[+i]);
+  return out;
+}
+
+function showToast(msg, type = 'success') {
+  toastMsg.textContent = msg;
+  toast.className = `toast show ${type}`;
+  if (type === 'error') toastIcon.innerHTML = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
+  else if (type === 'info') toastIcon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>';
+  else if (type === 'achievement') toastIcon.innerHTML = '<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>';
+  else toastIcon.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+/* ============================================================
+   TIME-BASED GREETING
+   ============================================================ */
+function setGreeting() {
+  const h = new Date().getHours();
+  let g = 'Welcome';
+  if (h < 12) g = 'Good morning';
+  else if (h < 17) g = 'Good afternoon';
+  else if (h < 21) g = 'Good evening';
+  else g = 'Working late?';
+  greetingEl.textContent = g + ' · Ready when you are';
+}
+setGreeting();
+
+/* ============================================================
+   PROGRESS TRACKING
+   ============================================================ */
+function updateProgressUI() {
+  statTopics.textContent = `${exploredTopics.size}`;
+  statQuiz.textContent = `${quizCorrect}/${quizTotal}`;
+  statStreak.textContent = `${bestStreak}`;
+  streakBadgeText.textContent = quizStreak;
+  const pct = Math.min(100, (exploredTopics.size / TOTAL_TOPICS) * 100);
+  progressFill.style.width = pct + '%';
+
+  // Mark visited topics in sidebar
+  document.querySelectorAll('.quick-list button[data-topic]').forEach(btn => {
+    const t = btn.getAttribute('data-topic');
+    if (exploredTopics.has(t)) btn.classList.add('visited');
+  });
+}
+
+function markTopicExplored(topicId) {
+  if (!topicId || exploredTopics.has(topicId)) return;
+  exploredTopics.add(topicId);
+  updateProgressUI();
+
+  // Achievement checks
+  if (exploredTopics.size === 1) unlock('firstTopic');
+  if (exploredTopics.size === 5) unlock('fiveTopics');
+  const basics = ['definition','why_matters','when_triggered','how_it_works'];
+  if (basics.every(b => exploredTopics.has(b))) unlock('allBasics');
+  if (exploredTopics.size === TOTAL_TOPICS) unlock('master');
+}
+
+function unlock(key) {
+  const a = achievements[key];
+  if (!a || a.unlocked) return;
+  a.unlocked = true;
+  abIcon.textContent = a.icon;
+  abTitle.textContent = a.title;
+  abDesc.textContent = a.desc;
+  achievementBadge.classList.add('show');
+  setTimeout(() => achievementBadge.classList.remove('show'), 2500);
+  showToast(`${a.icon} ${a.title} unlocked!`, 'achievement');
+}
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+function fireConfetti() {
+  const canvas = confettiCanvas;
+  const ctx = canvas.getContext('2d');
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  const colors = ['#ffc439', '#0070ba', '#003087', '#21c66c', '#ffae00'];
+  const particles = [];
+  for (let i = 0; i < 90; i++) {
+    particles.push({
+      x: innerWidth / 2 + (Math.random() - 0.5) * 200,
+      y: innerHeight / 3,
+      vx: (Math.random() - 0.5) * 14,
+      vy: -Math.random() * 16 - 6,
+      gravity: 0.4,
+      size: Math.random() * 8 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotationSpeed: (Math.random() - 0.5) * 12,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle'
+    });
+  }
+  let frame = 0;
+  function animate() {
+    frame++;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const p of particles) {
+      p.x += p.vx; p.y += p.vy; p.vy += p.gravity;
+      p.rotation += p.rotationSpeed;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.4);
+      else { ctx.beginPath(); ctx.arc(0, 0, p.size/2, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+    }
+    if (frame < 140) requestAnimationFrame(animate);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  animate();
+}
+
+/* ============================================================
+   STREAMING ANIMATION
+   ============================================================ */
+async function streamMarkdown(bubble, fullText) {
+  // Stream by progressively rendering the markdown for chunks
+  bubble.innerHTML = '<span class="stream-cursor"></span>';
+  const adaptiveChunk = fullText.length > 600 ? 8 : fullText.length > 250 ? 5 : 3;
+  const adaptiveDelay = fullText.length > 600 ? 8 : 11;
+
+  for (let i = 1; i <= fullText.length; i += adaptiveChunk) {
+    const partial = fullText.slice(0, i);
+    bubble.innerHTML = renderMarkdown(partial) + '<span class="stream-cursor"></span>';
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    await new Promise(r => setTimeout(r, adaptiveDelay));
+  }
+  bubble.innerHTML = renderMarkdown(fullText);
+}
+
+/* ============================================================
+   FILE PROCESSING (mammoth/pdf.js loaders)
+   ============================================================ */
+let mammothPromise = null;
+let pdfjsPromise = null;
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script'); s.src = src;
+    s.onload = () => resolve(); s.onerror = () => reject(new Error(`Could not load ${src}`));
+    document.head.appendChild(s);
+  });
+}
+async function ensureMammoth() {
+  if (window.mammoth) return true;
+  if (!mammothPromise) mammothPromise = loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js').then(() => true).catch(() => false);
+  return mammothPromise;
+}
+async function ensurePdfjs() {
+  if (window.pdfjsLib) return true;
+  if (!pdfjsPromise) pdfjsPromise = loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js').then(() => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; return true; }).catch(() => false);
+  return pdfjsPromise;
+}
+
+function detectFAQs(data) {
+  let arr = null;
+  if (Array.isArray(data)) arr = data;
+  else if (data && typeof data === 'object') arr = data.faqs || data.entries || data.questions || data.items || null;
+  if (!arr || !Array.isArray(arr)) return [];
+  const faqs = [];
+  for (const item of arr) {
+    if (!item || typeof item !== 'object') continue;
+    const q = item.question || item.q || item.Q || item.title;
+    const a = item.answer || item.a || item.A || item.response || item.body;
+    if (q && a) faqs.push({ question: String(q), answer: String(a) });
+  }
+  return faqs;
+}
+
+async function processFile(file) {
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  const sizeMB = file.size / (1024 * 1024);
+  if (sizeMB > 8) throw new Error(`File "${file.name}" is too large (${sizeMB.toFixed(1)}MB). Max 8MB.`);
+  let text = '', faqEntries = null;
+  if (['txt', 'md', 'csv'].includes(ext)) text = await file.text();
+  else if (ext === 'json') {
+    const raw = await file.text();
+    try {
+      const data = JSON.parse(raw);
+      const faqs = detectFAQs(data);
+      if (faqs.length) { faqEntries = faqs; text = faqs.map(f => `Q: ${f.question}\nA: ${f.answer}`).join('\n\n'); }
+      else text = JSON.stringify(data, null, 2);
+    } catch { text = raw; }
+  } else if (ext === 'docx') {
+    const ok = await ensureMammoth();
+    if (!ok) throw new Error('DOCX support requires internet (mammoth.js). Try .txt or .md instead.');
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await window.mammoth.extractRawText({ arrayBuffer });
+    text = result.value;
+  } else if (ext === 'pdf') {
+    const ok = await ensurePdfjs();
+    if (!ok) throw new Error('PDF support requires internet (pdf.js). Try exporting to .txt first.');
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let allText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      allText += content.items.map(it => it.str).join(' ') + '\n\n';
+    }
+    text = allText;
+  } else throw new Error(`Unsupported file type: .${ext}.`);
+  if (!text || text.trim().length < 3) throw new Error(`Couldn't extract text from "${file.name}".`);
+  return { text, faqEntries, ext };
+}
+
+function renderAttachments() {
+  attachmentsList.innerHTML = `<div class="attachments-label">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Knowledge Sources (${uploadedDocs.length})
+  </div>`;
+  for (const doc of uploadedDocs) {
+    const extra = doc.faqEntries ? ` · ${doc.faqEntries.length} FAQs` : ` · ${(doc.text.length/1000).toFixed(0)}k chars`;
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    chip.innerHTML = `<span class="file-chip-type">${escapeHTML(doc.ext)}</span><span class="file-chip-name" title="${escapeHTML(doc.name)}">${escapeHTML(doc.name)}<span style="color:var(--ink-soft);">${escapeHTML(extra)}</span></span><button class="file-chip-remove" data-remove="${doc.id}" aria-label="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+    attachmentsList.appendChild(chip);
+  }
+  if (uploadedDocs.length > 0) attachmentsBar.classList.add('has-files');
+  else attachmentsBar.classList.remove('has-files');
+}
+
+async function handleFiles(files) {
+  if (!files || !files.length) return;
+  for (const file of files) {
+    showToast(`Processing "${file.name}"…`, 'info');
+    try {
+      const { text, faqEntries, ext } = await processFile(file);
+      const id = `doc${++docIdCounter}`;
+      uploadedDocs.push({ id, name: file.name, ext, text, faqEntries });
+      renderAttachments();
+      if (faqEntries) {
+        showToast(`✓ Added ${faqEntries.length} FAQs from ${file.name}`);
+        addMessage('bot', `I've loaded **${faqEntries.length} FAQ entries** from \`${file.name}\`. You can ask me anything from that file — I'll match against them first.`, { followups: ['Show me what you found.', ...faqEntries.slice(0,2).map(f => f.question)] });
+      } else {
+        const wordCount = text.split(/\s+/).length;
+        showToast(`✓ Added "${file.name}" (${wordCount} words)`);
+        addMessage('bot', `Got it — I've loaded \`${file.name}\` (${wordCount} words). When you ask a question, I'll also search this document for relevant content.`, { followups: ['What does my uploaded file say about [topic]?', 'Show me a summary.'] });
+      }
+    } catch (err) { console.error(err); showToast(err.message || 'File error', 'error'); }
+  }
+}
+
+/* ============================================================
+   MATCHER
+   ============================================================ */
+function scoreEntry(query, entry) {
+  let score = 0;
+  for (const kw of entry.keywords) {
+    if (query.includes(kw)) score += kw.length + 2;
+    else {
+      const tokens = kw.split(' ').filter(t => t.length > 3);
+      for (const t of tokens) if (query.includes(t)) score += 1;
+    }
+  }
+  return score;
+}
+
+function searchUploadedDocs(query) {
+  if (uploadedDocs.length === 0) return null;
+  const tokens = normalize(query).split(' ').filter(t => t.length > 2);
+  if (tokens.length === 0) return null;
+  for (const doc of uploadedDocs) {
+    if (!doc.faqEntries) continue;
+    let best = null, bestScore = 0;
+    for (const faq of doc.faqEntries) {
+      const qn = normalize(faq.question);
+      let score = 0;
+      for (const t of tokens) if (qn.includes(t)) score += t.length;
+      if (score > bestScore) { bestScore = score; best = faq; }
+    }
+    if (bestScore >= 6 && best) return { type: 'faq', source: doc.name, question: best.question, answer: best.answer };
+  }
+  let bestMatch = null, bestScore = 0;
+  for (const doc of uploadedDocs) {
+    if (doc.faqEntries) continue;
+    const chunks = doc.text.split(/\n\s*\n+/).filter(c => c.trim().length > 30);
+    for (const chunk of chunks) {
+      const cn = chunk.toLowerCase();
+      let score = 0;
+      for (const t of tokens) if (cn.includes(t)) score += t.length;
+      if (score > bestScore) { bestScore = score; bestMatch = { doc, chunk }; }
+    }
+  }
+  if (bestScore < 10) return null;
+  return { type: 'chunk', source: bestMatch.doc.name, text: bestMatch.chunk.trim() };
+}
+
+function findMatch(rawQuery) {
+  const q = normalize(rawQuery);
+  if (GREETINGS.some(g => q === g || q.startsWith(g + ' ') || q.startsWith(g + ','))) {
+    const h = new Date().getHours();
+    const tod = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+    return { type: 'greeting', answer: `Hi there! 👋 Good ${tod}. I'm your **FBV Knowledge Assistant**. Ask me anything — or take the **Daily Challenge** to test yourself. You can also upload FAQ files (PDF, Word, JSON, text) and I'll search them too.`, followups: ['What is FBV?', 'Give me a random practice scenario.', 'How does the 5-step process work?'] };
+  }
+  if (THANKS.some(t => q.includes(t))) return { type: 'thanks', answer: `You're welcome! Want to keep building your streak? 🔥`, followups: ['Quiz me with a practice scenario.', 'What tips should I share with the customer?'] };
+  const scored = KB.map(e => ({ entry: e, score: scoreEntry(q, e) })).filter(s => s.score > 0).sort((a, b) => b.score - a.score);
+  const kbBest = scored[0] || null;
+  const docMatch = searchUploadedDocs(q);
+  if (kbBest && kbBest.score >= 8 && (!docMatch || kbBest.score >= 14)) return { type: 'answer', entry: kbBest.entry };
+  if (docMatch) return { type: 'doc', match: docMatch };
+  if (kbBest) return { type: 'answer', entry: kbBest.entry };
+  return { type: 'fallback', answer: `I'm not sure I caught that. I'm trained on the **V2.2 FBV course outline**, and I can also search any **FAQ files you upload**.\n\nTry one of the suggestions below, rephrase your question, or **tap 📎 to attach an FAQ document**.`, followups: ['What is FBV?', 'How does the 5-step process work?', 'Give me a random practice scenario.'] };
+}
+
+/* ============================================================
+   AUTOCOMPLETE
+   ============================================================ */
+const ALL_SUGGESTIONS = [
+  'What is Facial Biometric Verification?',
+  'Why does Facial Biometric Verification matter?',
+  'When is FBV triggered?',
+  'How does the FBV process work step by step?',
+  'What is the TID Shield case format?',
+  'What is my teammate experience for FBV?',
+  'What tips should I share with the customer?',
+  'Walk me through Eve\'s scenario.',
+  'What should I do if FBV fails?',
+  'Tell me about ownership and expectations.',
+  'What are the key learnings of this module?',
+  'What Knowledge Center resources are available?',
+  'Quiz me with a practice scenario.',
+  'Give me a random practice scenario.'
+];
+
+let acSelected = -1;
+let acResults = [];
+
+function updateAutocomplete() {
+  const val = inputEl.value.trim().toLowerCase();
+  if (val.length < 2) { autocomplete.classList.remove('show'); acResults = []; return; }
+  const results = ALL_SUGGESTIONS
+    .map(s => ({ s, score: s.toLowerCase().includes(val) ? (s.toLowerCase().indexOf(val) === 0 ? 100 : 50) : 0 }))
+    .filter(r => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map(r => r.s);
+  if (results.length === 0) { autocomplete.classList.remove('show'); acResults = []; return; }
+  acResults = results;
+  acSelected = -1;
+  acList.innerHTML = results.map((s, i) => `<div class="ac-item" data-ac-idx="${i}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span>${escapeHTML(s)}</span>
+  </div>`).join('');
+  autocomplete.classList.add('show');
+}
+
+function hideAutocomplete() { autocomplete.classList.remove('show'); acResults = []; acSelected = -1; }
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+function addMessage(role, text, options = {}) {
+  const { followups = [], isTyping = false, html = null, source = null, isStreamed = false } = options;
+  if (welcomeEl.style.display !== 'none') { welcomeEl.style.display = 'none'; messagesEl.style.display = 'flex'; }
+  const msg = document.createElement('div');
+  msg.className = `msg ${role}`;
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.innerHTML = role === 'bot' ? `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="11" r="3"/><path d="M7 17c1.5-2 3-3 5-3s3.5 1 5 3"/><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/></svg>` : 'You';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  if (isTyping) { bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>'; bubble.style.padding = '4px 6px'; }
+  else {
+    let inner = html !== null ? html : (role === 'bot' ? renderMarkdown(text) : `<p>${escapeHTML(text)}</p>`);
+    if (source) inner += `<div class="source-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Source: ${escapeHTML(source)}</div>`;
+    if (followups && followups.length) {
+      inner += '<div class="followups"><div class="followups-label">Suggested follow-ups</div>';
+      for (const f of followups) inner += `<button class="chip" data-q="${escapeHTML(f)}">${escapeHTML(f)}</button>`;
+      inner += '</div>';
+    }
+    bubble.innerHTML = inner;
+    if (role === 'bot') attachBubbleActions(bubble);
+  }
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  messagesEl.appendChild(msg);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return { msg, bubble };
+}
+
+function attachBubbleActions(bubble) {
+  const actions = document.createElement('div');
+  actions.className = 'bubble-actions';
+  actions.innerHTML = `
+    <button class="b-act up" aria-label="Helpful" title="Helpful"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H7"/><path d="M7 10H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/></svg></button>
+    <button class="b-act down" aria-label="Not helpful" title="Not helpful"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H17"/><path d="M17 14h3a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/></svg></button>
+    <button class="b-act copy" aria-label="Copy" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+  `;
+  bubble.appendChild(actions);
+
+  const upBtn = actions.querySelector('.up');
+  const downBtn = actions.querySelector('.down');
+  const copyBtn = actions.querySelector('.copy');
+
+  upBtn.addEventListener('click', () => {
+    upBtn.classList.toggle('active');
+    downBtn.classList.remove('active');
+    if (upBtn.classList.contains('active')) showToast('✓ Thanks for the feedback!', 'success');
+  });
+  downBtn.addEventListener('click', () => {
+    downBtn.classList.toggle('active');
+    upBtn.classList.remove('active');
+    if (downBtn.classList.contains('active')) showToast('Got it. We\'ll improve this.', 'info');
+  });
+  copyBtn.addEventListener('click', () => {
+    const plain = bubble.innerText.replace(/\s*$/, '').trim();
+    navigator.clipboard.writeText(plain).then(() => {
+      copyBtn.classList.add('copied');
+      setTimeout(() => copyBtn.classList.remove('copied'), 1500);
+      showToast('Copied to clipboard', 'success');
+    }).catch(() => showToast('Could not copy', 'error'));
+  });
+}
+
+/* ============================================================
+   SCENARIO HANDLERS
+   ============================================================ */
+function renderScenario(scenario) {
+  let html = renderMarkdown(scenario.setup);
+  html += '<div class="quiz-options">';
+  for (const opt of scenario.options) {
+    html += `<button class="quiz-opt" data-scenario="${scenario.id}" data-letter="${opt.letter}"><span class="quiz-opt-letter">${opt.letter}</span><span>${escapeHTML(opt.text)}</span></button>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function handleQuizAnswer(scenarioId, letter, bubbleEl) {
+  const scenario = SCENARIOS.find(s => s.id === scenarioId);
+  if (!scenario) return;
+  const chosen = scenario.options.find(o => o.letter === letter);
+  if (!chosen) return;
+  const optsEl = bubbleEl.querySelector('.quiz-options');
+  if (optsEl) {
+    optsEl.querySelectorAll('.quiz-opt').forEach(btn => {
+      btn.disabled = true;
+      const btnLetter = btn.getAttribute('data-letter');
+      const option = scenario.options.find(o => o.letter === btnLetter);
+      if (option.correct) btn.classList.add('correct');
+      else if (btnLetter === letter) btn.classList.add('incorrect');
+    });
+  }
+
+  // Track quiz result
+  quizTotal++;
+  if (chosen.correct) {
+    quizCorrect++;
+    quizStreak++;
+    if (quizStreak > bestStreak) bestStreak = quizStreak;
+    fireConfetti();
+    if (quizCorrect === 1) unlock('firstQuiz');
+    if (quizStreak === 3) unlock('hotStreak');
+  } else {
+    quizStreak = 0;
+  }
+  updateProgressUI();
+
+  const followups = chosen.correct
+    ? ['Give me another challenge!', 'Tell me about ownership and expectations.', 'What are the key learnings?']
+    : ['Try another scenario.', 'What\'s the teammate workflow?', 'What tips should I share with the customer?'];
+
+  setTimeout(() => {
+    const typingMsg = addMessage('bot', '', { isTyping: true });
+    setTimeout(() => {
+      typingMsg.bubble.style.padding = '';
+      streamMarkdown(typingMsg.bubble, chosen.feedback).then(() => {
+        // Add followups + actions
+        let extra = '<div class="followups"><div class="followups-label">Suggested follow-ups</div>' +
+          followups.map(f => `<button class="chip" data-q="${escapeHTML(f)}">${escapeHTML(f)}</button>`).join('') +
+          '</div>';
+        typingMsg.bubble.innerHTML += extra;
+        attachBubbleActions(typingMsg.bubble);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      });
+    }, 350);
+  }, 200);
+}
+
+/* ============================================================
+   CONVERSATION LOOP
+   ============================================================ */
+async function respondTo(userText) {
+  hideAutocomplete();
+  addMessage('user', userText);
+  const typingMsg = addMessage('bot', '', { isTyping: true });
+  sendBtn.disabled = true;
+  const result = findMatch(userText);
+  let answerText = '', followups = [], customHtml = null, source = null, topicId = null;
+  if (result.type === 'answer') {
+    const entry = result.entry;
+    if (entry.answer === '__QUIZ__') {
+      lastScenarioServed = (lastScenarioServed + 1) % SCENARIOS.length;
+      customHtml = renderScenario(SCENARIOS[lastScenarioServed]);
+    } else if (entry.answer === '__SCENARIO_1__') customHtml = renderScenario(SCENARIOS[0]);
+    else if (entry.answer === '__SCENARIO_2__') customHtml = renderScenario(SCENARIOS[1]);
+    else { answerText = entry.answer; followups = entry.followups || []; topicId = entry.id; }
+  } else if (result.type === 'doc') {
+    const m = result.match;
+    if (m.type === 'faq') answerText = `From your uploaded **FAQ**:\n\n**Q:** ${m.question}\n\n**A:** ${m.answer}`;
+    else answerText = `From your uploaded document:\n\n${m.text.length > 700 ? m.text.slice(0, 700) + '…' : m.text}`;
+    source = m.source;
+    followups = ['Ask about FBV from the course outline.', 'Quiz me with a practice scenario.'];
+  } else { answerText = result.answer; followups = result.followups || []; }
+
+  // Slight pause for typing indicator
+  await new Promise(r => setTimeout(r, 400));
+  typingMsg.bubble.style.padding = '';
+
+  if (customHtml) {
+    typingMsg.bubble.innerHTML = customHtml;
+  } else {
+    // STREAM the markdown
+    await streamMarkdown(typingMsg.bubble, answerText);
+    // Then add source pill and followups
+    if (source) {
+      typingMsg.bubble.innerHTML += `<div class="source-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Source: ${escapeHTML(source)}</div>`;
+    }
+    if (followups && followups.length) {
+      let fh = '<div class="followups"><div class="followups-label">Suggested follow-ups</div>';
+      for (const f of followups) fh += `<button class="chip" data-q="${escapeHTML(f)}">${escapeHTML(f)}</button>`;
+      fh += '</div>';
+      typingMsg.bubble.innerHTML += fh;
+    }
+    attachBubbleActions(typingMsg.bubble);
+  }
+
+  if (topicId) markTopicExplored(topicId);
+
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  sendBtn.disabled = false;
+  inputEl.focus();
+}
+
+function handleSend() {
+  const text = inputEl.value.trim();
+  if (!text) return;
+  inputEl.value = '';
+  hideAutocomplete();
+  respondTo(text);
+}
+
+/* ============================================================
+   VOICE INPUT (Web Speech API) — robust version
+   ============================================================ */
+(function setupVoiceInput() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  // 1) Browser support check
+  if (!SpeechRec) {
+    micBtn.title = 'Voice input not supported in this browser';
+    micBtn.style.opacity = '0.4';
+    micBtn.style.cursor = 'not-allowed';
+    micBtn.addEventListener('click', () => {
+      showToast('Voice input isn\'t supported in this browser. Try Chrome, Edge, or Safari.', 'info');
+    });
+    return;
+  }
+
+  // 2) Secure context check — Web Speech API requires HTTPS or localhost.
+  // Opening this HTML directly (file://) will fail in modern Chrome.
+  const isLocalhost = ['localhost', '127.0.0.1', ''].includes(location.hostname);
+  const isSecure = window.isSecureContext || isLocalhost;
+  const isFile = location.protocol === 'file:';
+
+  if (!isSecure || isFile) {
+    micBtn.title = 'Voice input needs HTTPS';
+    micBtn.style.opacity = '0.55';
+    micBtn.addEventListener('click', () => {
+      const reason = isFile
+        ? 'Voice input is blocked when opening this file directly (file://). Host it on a web server (or open via http://localhost) and microphone access will work.'
+        : 'Voice input needs a secure (HTTPS) connection. Please load this page over HTTPS.';
+      showToast(reason, 'error');
+    });
+    return;
+  }
+
+  // 3) Build the recognizer
+  let recognition;
+  try {
+    recognition = new SpeechRec();
+  } catch (e) {
+    console.error('SpeechRecognition init failed:', e);
+    micBtn.style.display = 'none';
+    return;
+  }
+  recognition.lang = 'en-US';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  let isListening = false;
+  let finalTranscript = '';
+  let userAborted = false;
+  let lastError = null;
+
+  recognition.onstart = () => {
+    isListening = true;
+    finalTranscript = '';
+    userAborted = false;
+    lastError = null;
+    micBtn.classList.add('listening');
+    inputEl.placeholder = 'Listening… speak now';
+  };
+
+  recognition.onresult = (event) => {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) finalTranscript += t;
+      else interim += t;
+    }
+    inputEl.value = (finalTranscript + interim).trim();
+  };
+
+  recognition.onerror = (e) => {
+    lastError = e.error;
+    console.warn('SpeechRecognition error:', e.error, e.message || '');
+
+    const messages = {
+      'no-speech':            { text: 'I didn\'t catch that. Try again.', type: 'info' },
+      'audio-capture':        { text: 'No microphone detected. Check your device.', type: 'error' },
+      'not-allowed':          { text: 'Microphone access blocked. Allow it in your browser settings (click the 🔒 in the address bar).', type: 'error' },
+      'service-not-allowed':  { text: 'Speech service blocked by your browser or OS.', type: 'error' },
+      'network':              { text: 'Voice input needs internet. Check your connection.', type: 'error' },
+      'aborted':              null, // user pressed mic again — no toast
+      'bad-grammar':          { text: 'Recognition failed. Try again.', type: 'error' },
+      'language-not-supported': { text: 'Language not supported for voice input.', type: 'error' }
+    };
+
+    const m = messages.hasOwnProperty(e.error) ? messages[e.error] : { text: `Voice error: ${e.error || 'unknown'}`, type: 'error' };
+    if (m) showToast(m.text, m.type);
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    micBtn.classList.remove('listening');
+    inputEl.placeholder = 'Ask, attach a file, or tap 🎤…';
+    // Only auto-send if we got a real transcript AND there was no error AND user didn't abort
+    if (!lastError && !userAborted && finalTranscript.trim()) {
+      setTimeout(() => handleSend(), 250);
+    }
+  };
+
+  micBtn.addEventListener('click', async () => {
+    if (isListening) {
+      userAborted = true;
+      try { recognition.stop(); } catch (e) {}
+      return;
+    }
+    inputEl.value = '';
+    finalTranscript = '';
+    lastError = null;
+    userAborted = false;
+
+    // Try to pre-warm mic permission for clearer error messages
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // We don't actually need the stream — just confirming permission. Release it.
+        stream.getTracks().forEach(t => t.stop());
+      } catch (e) {
+        const name = e && e.name;
+        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+          showToast('Microphone access blocked. Click the 🔒 / camera icon in your address bar and allow it.', 'error');
+          return;
+        } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+          showToast('No microphone found on this device.', 'error');
+          return;
+        }
+        // Other errors fall through — let recognition.start() report them
+      }
+    }
+
+    try {
+      recognition.start();
+    } catch (e) {
+      // InvalidStateError if already started; ignore. Otherwise surface.
+      if (e && e.name !== 'InvalidStateError') {
+        console.error('recognition.start() failed:', e);
+        showToast('Could not start voice input: ' + (e.message || e.name || 'unknown'), 'error');
+      }
+    }
+  });
+})();
+
+/* ============================================================
+   THEME TOGGLE
+   ============================================================ */
+function updateThemeIcon() {
+  if (document.body.classList.contains('dark')) {
+    themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  } else {
+    themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
+}
+themeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  updateThemeIcon();
+});
+
+/* ============================================================
+   EVENT WIRING
+   ============================================================ */
+sendBtn.addEventListener('click', handleSend);
+inputEl.addEventListener('input', updateAutocomplete);
+inputEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (acSelected >= 0 && acResults[acSelected]) {
+      inputEl.value = acResults[acSelected];
+      hideAutocomplete();
+      handleSend();
+      return;
+    }
+    handleSend();
+  } else if (e.key === 'Tab' && autocomplete.classList.contains('show') && acResults.length > 0) {
+    e.preventDefault();
+    inputEl.value = acResults[0];
+    hideAutocomplete();
+  } else if (e.key === 'ArrowDown' && autocomplete.classList.contains('show')) {
+    e.preventDefault();
+    acSelected = Math.min(acResults.length - 1, acSelected + 1);
+    acList.querySelectorAll('.ac-item').forEach((el, i) => el.classList.toggle('selected', i === acSelected));
+  } else if (e.key === 'ArrowUp' && autocomplete.classList.contains('show')) {
+    e.preventDefault();
+    acSelected = Math.max(-1, acSelected - 1);
+    acList.querySelectorAll('.ac-item').forEach((el, i) => el.classList.toggle('selected', i === acSelected));
+  } else if (e.key === 'Escape') hideAutocomplete();
+});
+inputEl.addEventListener('blur', () => setTimeout(hideAutocomplete, 200));
+
+attachBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); fileInput.value = ''; });
+
+function openSidebar() { sidebar.classList.add('open'); sbBackdrop.classList.add('active'); }
+function closeSidebar() { sidebar.classList.remove('open'); sbBackdrop.classList.remove('active'); }
+mobileMenuBtn.addEventListener('click', openSidebar);
+sbClose.addEventListener('click', closeSidebar);
+sbBackdrop.addEventListener('click', closeSidebar);
+
+document.addEventListener('click', (e) => {
+  // Autocomplete click
+  const acItem = e.target.closest('.ac-item');
+  if (acItem) {
+    const idx = parseInt(acItem.getAttribute('data-ac-idx'));
+    if (!isNaN(idx) && acResults[idx]) {
+      inputEl.value = acResults[idx];
+      hideAutocomplete();
+      handleSend();
+    }
+    return;
+  }
+  const quizBtn = e.target.closest('.quiz-opt');
+  if (quizBtn && !quizBtn.disabled) {
+    const scenarioId = quizBtn.getAttribute('data-scenario');
+    const letter = quizBtn.getAttribute('data-letter');
+    const bubbleEl = quizBtn.closest('.bubble');
+    handleQuizAnswer(scenarioId, letter, bubbleEl);
+    return;
+  }
+  const removeBtn = e.target.closest('.file-chip-remove');
+  if (removeBtn) {
+    const id = removeBtn.getAttribute('data-remove');
+    uploadedDocs = uploadedDocs.filter(d => d.id !== id);
+    renderAttachments();
+    showToast('Removed from knowledge sources', 'info');
+    return;
+  }
+  const dataQBtn = e.target.closest('[data-q]');
+  if (dataQBtn) {
+    const q = dataQBtn.getAttribute('data-q');
+    respondTo(q);
+    if (window.innerWidth <= 767) closeSidebar();
+  }
+});
+
+// Drag & drop
+let dragCounter = 0;
+window.addEventListener('dragenter', (e) => {
+  if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes('Files')) return;
+  e.preventDefault(); dragCounter++; dropOverlay.classList.add('active');
+});
+window.addEventListener('dragover', (e) => { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) e.preventDefault(); });
+window.addEventListener('dragleave', (e) => {
+  if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes('Files')) return;
+  dragCounter = Math.max(0, dragCounter - 1); if (dragCounter === 0) dropOverlay.classList.remove('active');
+});
+window.addEventListener('drop', (e) => {
+  if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes('Files')) return;
+  e.preventDefault(); dragCounter = 0; dropOverlay.classList.remove('active');
+  handleFiles(e.dataTransfer.files);
+});
+
+// Resize canvas on window resize
+window.addEventListener('resize', () => {
+  confettiCanvas.width = innerWidth;
+  confettiCanvas.height = innerHeight;
+});
+confettiCanvas.width = innerWidth;
+confettiCanvas.height = innerHeight;
+
+updateProgressUI();
+inputEl.focus();
+</script>
+</body>
+</html>
