@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>7 Chakra Emotional Intelligence Simulator | © Disha Biswas</title>
+  <meta name="author" content="Disha Biswas">
+  <meta name="copyright" content="© 2025 Disha Biswas. All Rights Reserved.">
+  <script>
+    (function() {
+      const originalWarn = console.warn;
+      console.warn = function(...args) {
+        if (args[0] && typeof args[0] === 'string' && args[0].includes('in-browser Babel transformer')) return;
+        originalWarn.apply(console, args);
+      };
+    })();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #root { width: 100%; height: 100%; overflow: hidden; }
+    body { font-family: Arial, sans-serif; background: #0a0a1a; }
+    @keyframes pulse { 0%, 100% { transform: translate(-50%, 50%) scale(1); opacity: 1; } 50% { transform: translate(-50%, 50%) scale(1.1); opacity: 0.8; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.6); } 50% { box-shadow: 0 0 40px rgba(0, 255, 255, 1); } }
+    .copyright-footer { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.5); font-size: 11px; z-index: 10; text-align: center; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <div class="copyright-footer">© 2025 Disha Biswas. All Rights Reserved. | 7 Chakra Emotional Intelligence Simulator</div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const ChakraMeditationGame = () => {
+      const mountRef = useRef(null);
+      const [gameState, setGameState] = useState({
+        currentLevel: 0, unlockedLevels: [0], isConversing: false,
+        conversationHistory: [], nearGuide: false, guideLevel: null, loading: false
+      });
+      const gameStateRef = useRef(gameState);
+      const [message, setMessage] = useState('');
+      const [uiMessage, setUiMessage] = useState('Welcome to your Chakra Journey. Begin at the Root Chakra (red orb).');
+      const [showAdvanced, setShowAdvanced] = useState(false);
+      const [showWelcome, setShowWelcome] = useState(true);
+      const [showCongratulations, setShowCongratulations] = useState(false);
+
+      useEffect(() => { gameStateRef.current = gameState; }, [gameState]);
+
+      const chakras = [
+        { 
+          name: 'Muladhara', title: 'Root Chakra', color: 0xff0000, 
+          description: 'Grounding, Safety, Stability', 
+          position: { x: 0, z: -15 }, number: 1, mantra: 'LAM',
+          breathing: '4-4-4-4 Square Breathing',
+          breathingDetail: 'Inhale 4 counts, hold 4, exhale 4, hold 4',
+          mudra: 'Muladhara Mudra',
+          mudraDetail: 'Touch thumb tip to index finger tip on both hands',
+          posture: 'Sit cross-legged with spine straight',
+          numerology: 'Number 1: New beginnings and foundation',
+          reasoning: 'Square breathing creates stability like four corners of foundation',
+          vortexBreathing: 'Downward Spiral Clockwise',
+          vortexDetail: 'Visualize red vortex spiraling down through spine into Earth',
+          vortexReasoning: 'Downward spiral grounds energy into earth element',
+          bhagavadGita: 'Chapter 3 Verse 35: Better your own dharma than another',
+          vedicProgramming: 'Root yourself in authentic nature (Svadharma)',
+          sanskritNLP: 'Sthirata (Stability) Dharana (Support) Mula (Root)',
+          vedicReasoning: 'True stability comes from honoring authentic self',
+          fibonacciSequence: '1, 1, 2, 3, 5, 8',
+          fibonacciMantra: 'Om Dharayai Namah',
+          goldenRatio: 'Phi 1.618: Divine proportion of growth',
+          fibonacciReasoning: 'Root at 1 contains seed of all growth',
+          manifestationMantra: 'Aham Sthiro Asmi | Aham Samriddho Asmi',
+          manifestationMeaning: 'I am stable | I am abundant',
+          manifestationReasoning: 'Root chakra manifestation creates solid foundation for material abundance and security. This affirmation anchors your intention into physical reality through earth element.'
+        },
+        { 
+          name: 'Svadhishthana', title: 'Sacral Chakra', color: 0xff8800, 
+          description: 'Creativity, Emotions, Pleasure', 
+          position: { x: 13, z: -7.5 }, number: 2, mantra: 'VAM',
+          breathing: '2-8 Flowing Breath',
+          breathingDetail: 'Inhale 2 counts, exhale slowly 8 counts',
+          mudra: 'Shakti Mudra',
+          mudraDetail: 'Thumbs inside palms, fingers wrap around',
+          posture: 'Seated with gentle hip circles, embracing fluidity',
+          numerology: 'Number 2: Duality and partnership',
+          reasoning: 'Flowing breath mirrors emotional currents like water',
+          vortexBreathing: 'Figure-8 Flow Horizontal',
+          vortexDetail: 'Breathe in infinity symbol pattern at sacral level',
+          vortexReasoning: 'Figure-8 represents infinite creative flow',
+          bhagavadGita: 'Chapter 2 Verse 48: Established in yoga perform actions',
+          vedicProgramming: 'Act from centered balance like water',
+          sanskritNLP: 'Pravaha (Flow) Srijana (Creation) Rasa (Essence)',
+          vedicReasoning: 'Karma Yoga: creative action without attachment',
+          fibonacciSequence: '1, 2, 3',
+          fibonacciMantra: 'Om Svadhishthanaya Namah',
+          goldenRatio: 'Phi in relationships: divine balance of give and receive',
+          fibonacciReasoning: 'Position 2 shows first duplication becoming relationship',
+          manifestationMantra: 'Aham Srijami | Aham Anandami',
+          manifestationMeaning: 'I am creating | I am blissful',
+          manifestationReasoning: 'Sacral chakra manifestation flows like water, creating effortlessly. This affirmation opens channels for creative expression and emotional fulfillment through surrender to divine flow.'
+        },
+        { 
+          name: 'Manipura', title: 'Solar Plexus', color: 0xffff00, 
+          description: 'Personal Power, Confidence', 
+          position: { x: 13, z: 7.5 }, number: 3, mantra: 'RAM',
+          breathing: '3-3-3 Power Breath',
+          breathingDetail: 'Inhale 3, hold 3, exhale forcefully 3',
+          mudra: 'Rudra Mudra',
+          mudraDetail: 'Touch thumb, index, ring fingers together',
+          posture: 'Seated upright with chest open',
+          numerology: 'Number 3: Action and manifestation',
+          reasoning: 'Three-count breathing ignites internal fire',
+          vortexBreathing: 'Solar Spiral Counter-clockwise',
+          vortexDetail: 'Golden fire spiraling outward from solar plexus',
+          vortexReasoning: 'Counter-clockwise activates fire element Agni',
+          bhagavadGita: 'Chapter 3 Verse 36: Desire and anger born of Rajas',
+          vedicProgramming: 'Transform passionate action into righteous will',
+          sanskritNLP: 'Tejas (Radiance) Sankalpa (Will) Shakti (Power)',
+          vedicReasoning: 'Direct passionate energy in aligned purpose not ego',
+          fibonacciSequence: '3, 5, 8',
+          fibonacciMantra: 'Om Ram Ramaya Namah',
+          goldenRatio: 'Phi cubed 4.236: Three-dimensional manifestation',
+          fibonacciReasoning: 'Trinity creates manifestation bringing ideas to form',
+          manifestationMantra: 'Aham Shaktiman Asmi | Aham Saphalo Asmi',
+          manifestationMeaning: 'I am powerful | I am successful',
+          manifestationReasoning: 'Solar Plexus manifestation ignites willpower into action. This affirmation activates Agni (fire) to transform intention into tangible results through confident assertion of personal power.'
+        },
+        { 
+          name: 'Anahata', title: 'Heart Chakra', color: 0x00ff00, 
+          description: 'Love, Compassion, Connection', 
+          position: { x: 0, z: 15 }, number: 4, mantra: 'YAM',
+          breathing: '4-7-8 Heart Opening',
+          breathingDetail: 'Inhale 4, hold 7, exhale 8',
+          mudra: 'Padma Mudra Lotus',
+          mudraDetail: 'Palm bases and thumb tips touch, fingers spread',
+          posture: 'Heart center lifted, shoulders relaxed',
+          numerology: 'Number 4: Stability and foundation of love',
+          reasoning: 'Four-seven-eight creates calming heart rhythm',
+          vortexBreathing: 'Torus Field Spherical',
+          vortexDetail: 'Toroidal field expanding from heart in all directions',
+          vortexReasoning: 'Torus mirrors heart electromagnetic field geometry',
+          bhagavadGita: 'Chapter 6 Verse 32: See equality everywhere',
+          vedicProgramming: 'See yourself in all beings (Atma-Upamya)',
+          sanskritNLP: 'Prema (Divine Love) Karuna (Compassion) Aikya (Unity)',
+          vedicReasoning: 'See no separation between self and other',
+          fibonacciSequence: '5, 8, 13',
+          fibonacciMantra: 'Om Hrim Anahataya Namah',
+          goldenRatio: 'Phi to 4th 6.854: Bridge heaven and earth',
+          fibonacciReasoning: 'Heart is bridge chakra with perfect harmonic resonance',
+          manifestationMantra: 'Aham Premamayah Asmi | Aham Poornam Asmi',
+          manifestationMeaning: 'I am filled with love | I am complete',
+          manifestationReasoning: 'Heart chakra manifestation creates through unconditional love. This affirmation magnetizes experiences of wholeness and connection, manifesting from a state of already being complete rather than lacking.'
+        },
+        { 
+          name: 'Vishuddha', title: 'Throat Chakra', color: 0x0088ff, 
+          description: 'Communication, Truth, Expression', 
+          position: { x: -13, z: 7.5 }, number: 5, mantra: 'HAM',
+          breathing: '5-5-5 Ujjayi Ocean Breath',
+          breathingDetail: 'Inhale 5, hold 5, exhale 5 with throat constriction',
+          mudra: 'Granthita Mudra',
+          mudraDetail: 'Interlock fingers, extend index fingers upward',
+          posture: 'Neck long, chin slightly tucked',
+          numerology: 'Number 5: Communication and freedom',
+          reasoning: 'Five-count resonates with five elements',
+          vortexBreathing: 'Sonic Wave Vibrational',
+          vortexDetail: 'Blue concentric circles radiating from throat',
+          vortexReasoning: 'Sound waves activate ether element Akasha',
+          bhagavadGita: 'Chapter 17 Verse 15: Truth pleasant and beneficial',
+          vedicProgramming: 'Speak truth that serves and uplifts',
+          sanskritNLP: 'Satya (Truth) Vak (Speech) Shruti (Divine Sound)',
+          vedicReasoning: 'Communication must serve heal and uplift',
+          fibonacciSequence: '8, 13, 21',
+          fibonacciMantra: 'Om Aim Sarasvatyai Namah',
+          goldenRatio: 'Phi to 5th 11.09: Harmony of expression',
+          fibonacciReasoning: 'Rapid expansion like words through consciousness',
+          manifestationMantra: 'Aham Satyavak Asmi | Aham Vyaktah Asmi',
+          manifestationMeaning: 'I speak truth | I am clearly expressed',
+          manifestationReasoning: 'Throat chakra manifestation uses sound vibration as creative force. This affirmation activates Vak Siddhi (power of speech), manifesting reality through conscious use of words and authentic expression.'
+        },
+        { 
+          name: 'Ajna', title: 'Third Eye', color: 0x4400ff, 
+          description: 'Intuition, Wisdom, Insight', 
+          position: { x: -13, z: -7.5 }, number: 6, mantra: 'OM',
+          breathing: '6-6-6 Alternate Nostril',
+          breathingDetail: 'Close right nostril inhale left 6, switch sides',
+          mudra: 'Hakini Mudra',
+          mudraDetail: 'Touch all fingertips together creating temple',
+          posture: 'Eyes closed gazing at third eye point',
+          numerology: 'Number 6: Intuition and inner vision',
+          reasoning: 'Alternate nostril balances brain hemispheres',
+          vortexBreathing: 'Double Helix DNA Spiral',
+          vortexDetail: 'Two indigo spirals intertwining at third eye',
+          vortexReasoning: 'Double helix unifies duality activating Sushumna',
+          bhagavadGita: 'Chapter 13 Verse 34: Distinguish field from knower',
+          vedicProgramming: 'Develop discriminative wisdom (Viveka)',
+          sanskritNLP: 'Viveka (Discrimination) Jnana (Knowledge) Drishti (Vision)',
+          vedicReasoning: 'Distinguish eternal Self from temporary body-mind',
+          fibonacciSequence: '13, 21, 34',
+          fibonacciMantra: 'Om Jnam Jnanaya Namah',
+          goldenRatio: 'Phi to 6th 17.94: Sacred geometry of perception',
+          fibonacciReasoning: 'Patterns become visible perceiving divine order',
+          manifestationMantra: 'Aham Drashta Asmi | Aham Jnani Asmi',
+          manifestationMeaning: 'I am the seer | I am the knower',
+          manifestationReasoning: 'Third Eye manifestation sees desired reality before it materializes. This affirmation activates intuitive vision, manifesting through clear inner sight and trusting the wisdom that transcends physical perception.',
+          shivaImportance: 'The Third Eye (Ajna) is the seat of Lord Shiva - Tryambaka, the Three-Eyed One. When Shiva opens his third eye, he destroys illusion and reveals ultimate truth. This chakra connects directly to Shiva consciousness, granting the power to see beyond maya (illusion) into the nature of reality itself.',
+          rudrakshaPower: 'Rudraksha beads are the tears of Lord Shiva, formed when he opened his eyes after deep meditation. Wearing Rudraksha during Third Eye meditation amplifies Shiva consciousness, protects the aura, and accelerates spiritual awakening. The 2-mukhi represents Shiva-Shakti unity, while 6-mukhi specifically activates Ajna chakra.'
+        },
+        { 
+          name: 'Sahasrara', title: 'Crown Chakra', color: 0xff00ff, 
+          description: 'Spiritual Connection, Unity', 
+          position: { x: 0, z: 0 }, number: 7, mantra: 'OM or Silence',
+          breathing: '7-7-7 Divine Breath',
+          breathingDetail: 'Inhale 7, hold 7, exhale 7 or breathe naturally',
+          mudra: 'Sahasrara Mudra',
+          mudraDetail: 'Interlock fingers except ring fingers pointing up',
+          posture: 'Crown reaching toward infinity',
+          numerology: 'Number 7: Spiritual awakening and completion',
+          reasoning: 'Seven-count represents spiritual perfection',
+          vortexBreathing: 'Thousand-Petaled Lotus Omni-directional',
+          vortexDetail: 'Pure awareness or violet light cascading and rising',
+          vortexReasoning: 'Infinite spirals emanating in all directions',
+          bhagavadGita: 'Chapter 9 Verse 22: Single-minded devotion',
+          vedicProgramming: 'Surrender to unwavering devotion (Ananya Bhakti)',
+          sanskritNLP: 'Samadhi (Union) Shunya (Void) Saccidananda (Bliss)',
+          vedicReasoning: 'Individual consciousness merges with Universal',
+          fibonacciSequence: '21, 34, 55 approaching infinity',
+          fibonacciMantra: 'Om Sah Soham',
+          goldenRatio: 'Phi to 7th 29.03 toward infinity',
+          fibonacciReasoning: 'Consciousness spirals toward infinite like galaxies',
+          manifestationMantra: 'Aham Brahmasmi | Tat Tvam Asi',
+          manifestationMeaning: 'I am the Universe | Thou art That',
+          manifestationReasoning: 'Crown chakra manifestation recognizes you are not creating but revealing what already exists in divine consciousness. This ultimate affirmation dissolves separation between manifestor and manifested, recognizing all as One.'
+        }
+      ];
+
+      useEffect(() => {
+        if (!mountRef.current) return;
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a1a);
+        scene.fog = new THREE.Fog(0x0a0a1a, 10, 50);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1.6, 20);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        mountRef.current.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        pointLight.position.set(0, 10, 0);
+        scene.add(pointLight);
+
+        const ground = new THREE.Mesh(
+          new THREE.CircleGeometry(30, 64),
+          new THREE.MeshStandardMaterial({ color: 0x1a1a2e, metalness: 0.3, roughness: 0.7 })
+        );
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        const starGeometry = new THREE.BufferGeometry();
+        const starVertices = [];
+        for (let i = 0; i < 1000; i++) {
+          starVertices.push((Math.random() - 0.5) * 200, Math.random() * 100 + 20, (Math.random() - 0.5) * 200);
+        }
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        scene.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 })));
+
+        const chakraObjects = [];
+        const guideObjects = [];
+
+        chakras.forEach((chakra, index) => {
+          const isUnlocked = gameState.unlockedLevels.includes(index);
+          if (isUnlocked) {
+            const portalGroup = new THREE.Group();
+            const ring = new THREE.Mesh(
+              new THREE.TorusGeometry(2, 0.1, 16, 100),
+              new THREE.MeshStandardMaterial({ color: chakra.color, emissive: chakra.color, emissiveIntensity: 0.8, metalness: 0.8, roughness: 0.2 })
+            );
+            ring.rotation.y = Math.PI / 2;
+            portalGroup.add(ring);
+            const portal = new THREE.Mesh(
+              new THREE.CircleGeometry(1.8, 32),
+              new THREE.MeshBasicMaterial({ color: chakra.color, transparent: true, opacity: 0.3, side: THREE.DoubleSide })
+            );
+            portal.rotation.y = Math.PI / 2;
+            portalGroup.add(portal);
+            const particles = new THREE.BufferGeometry();
+            const particlePositions = [];
+            for (let i = 0; i < 50; i++) {
+              const angle = (i / 50) * Math.PI * 2;
+              const radius = 2.5 + Math.random() * 0.5;
+              particlePositions.push(Math.cos(angle) * radius, (Math.random() - 0.5) * 4, Math.sin(angle) * radius);
+            }
+            particles.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
+            const particleSystem = new THREE.Points(particles, new THREE.PointsMaterial({ color: chakra.color, size: 0.15, transparent: true, opacity: 0.8 }));
+            portalGroup.add(particleSystem);
+            portalGroup.position.set(chakra.position.x, 3, chakra.position.z);
+            portalGroup.userData = { type: 'portal', level: index, particles: particleSystem };
+            scene.add(portalGroup);
+            chakraObjects.push(portalGroup);
+
+            const guideGroup = new THREE.Group();
+            const bodyMat = new THREE.MeshStandardMaterial({ color: chakra.color, emissive: chakra.color, emissiveIntensity: 0.5, transparent: true, opacity: 0.8 });
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.2, 16), bodyMat);
+            body.position.y = 1;
+            guideGroup.add(body);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), bodyMat);
+            head.position.y = 1.85;
+            guideGroup.add(head);
+            const aura = new THREE.Mesh(new THREE.SphereGeometry(0.8, 32, 32), new THREE.MeshBasicMaterial({ color: chakra.color, transparent: true, opacity: 0.2, side: THREE.BackSide }));
+            aura.position.y = 1;
+            guideGroup.add(aura);
+            guideGroup.position.set(chakra.position.x, 0, chakra.position.z - 5);
+            guideGroup.userData = { type: 'guide', level: index, aura };
+            scene.add(guideGroup);
+            guideObjects.push(guideGroup);
+          } else {
+            const orbGroup = new THREE.Group();
+            const orb = new THREE.Mesh(
+              new THREE.SphereGeometry(1.5, 32, 32),
+              new THREE.MeshStandardMaterial({ color: chakra.color, emissive: chakra.color, emissiveIntensity: 0.3, transparent: true, opacity: 0.4, metalness: 0.8, roughness: 0.2 })
+            );
+            orbGroup.add(orb);
+            const glow = new THREE.Mesh(new THREE.SphereGeometry(1.2, 32, 32), new THREE.MeshBasicMaterial({ color: chakra.color, transparent: true, opacity: 0.2, side: THREE.BackSide }));
+            orbGroup.add(glow);
+            orbGroup.position.set(chakra.position.x, 3, chakra.position.z);
+            orbGroup.userData = { type: 'locked_orb', level: index, orb, glow };
+            scene.add(orbGroup);
+            chakraObjects.push(orbGroup);
+          }
+        });
+
+        const keys = { w: false, a: false, s: false, d: false, arrowleft: false, arrowright: false };
+        let rotationY = 0;
+        const onKeyDown = (e) => { const k = e.key.toLowerCase(); if (keys.hasOwnProperty(k)) keys[k] = true; };
+        const onKeyUp = (e) => {
+          const k = e.key.toLowerCase();
+          if (keys.hasOwnProperty(k)) keys[k] = false;
+          if (k === 'e' && gameStateRef.current.nearGuide && !gameStateRef.current.isConversing && gameStateRef.current.guideLevel !== null) {
+            setGameState(prev => ({ ...prev, isConversing: true }));
+          }
+        };
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('keyup', onKeyUp);
+
+        let animationId;
+        const clock = new THREE.Clock();
+        const animate = () => {
+          animationId = requestAnimationFrame(animate);
+          const delta = clock.getDelta();
+          const time = clock.getElapsedTime();
+          if (keys.arrowleft) rotationY += 2 * delta;
+          if (keys.arrowright) rotationY -= 2 * delta;
+          const dir = new THREE.Vector3();
+          if (keys.w) dir.z -= 1;
+          if (keys.s) dir.z += 1;
+          if (keys.a) dir.x -= 1;
+          if (keys.d) dir.x += 1;
+          if (dir.length() > 0) {
+            dir.normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), rotationY);
+            camera.position.add(dir.multiplyScalar(5 * delta));
+          }
+          camera.rotation.y = rotationY;
+          const dist = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
+          if (dist > 25) {
+            camera.position.x = (camera.position.x / dist) * 25;
+            camera.position.z = (camera.position.z / dist) * 25;
+          }
+          chakraObjects.forEach((obj) => {
+            if (obj.userData.type === 'portal') {
+              obj.rotation.y += delta * 0.5;
+              if (obj.userData.particles) obj.userData.particles.rotation.y += delta;
+            } else if (obj.userData.type === 'locked_orb') {
+              obj.rotation.y += delta * 0.3;
+              obj.position.y = 3 + Math.sin(time * 2) * 0.3;
+              if (obj.userData.orb) obj.userData.orb.material.emissiveIntensity = 0.3 + Math.sin(time * 3) * 0.2;
+            }
+          });
+          guideObjects.forEach((g) => {
+            g.rotation.y += delta * 0.5;
+            if (g.userData.aura) g.userData.aura.scale.setScalar(1 + Math.sin(time * 2) * 0.1);
+          });
+          if (!gameStateRef.current.isConversing) {
+            let nearAny = false, nearLvl = null;
+            guideObjects.forEach((g) => {
+              if (camera.position.distanceTo(g.position) < 3) { nearAny = true; nearLvl = g.userData.level; }
+            });
+            if (nearAny !== gameStateRef.current.nearGuide || nearLvl !== gameStateRef.current.guideLevel) {
+              setGameState(prev => ({ ...prev, nearGuide: nearAny, guideLevel: nearLvl }));
+              setUiMessage(nearAny && nearLvl !== null ? `Press E to speak with the ${chakras[nearLvl].title} Guide` : 'Explore the chakra realm. Walk to unlocked portals and their guides.');
+            }
+          }
+          renderer.render(scene, camera);
+        };
+        animate();
+
+        const handleResize = () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+          window.removeEventListener('keydown', onKeyDown);
+          window.removeEventListener('keyup', onKeyUp);
+          window.removeEventListener('resize', handleResize);
+          cancelAnimationFrame(animationId);
+          if (mountRef.current && renderer.domElement) mountRef.current.removeChild(renderer.domElement);
+        };
+      }, [gameState.unlockedLevels]);
+
+      const sendMessage = async () => {
+        if (!message.trim() || gameState.loading || gameState.guideLevel === null) return;
+        const userMsg = message;
+        setMessage('');
+        setGameState(prev => ({ ...prev, loading: true, conversationHistory: [...prev.conversationHistory, { role: 'user', content: userMsg }] }));
+        try {
+          const chakra = chakras[gameState.guideLevel];
+          let sysPrompt = `You are the ${chakra.title} (${chakra.name}) guide. This chakra is about: ${chakra.description}. Number ${chakra.number}. Mantra: ${chakra.mantra}. Manifestation Affirmation: ${chakra.manifestationMantra}.`;
+          if (gameState.guideLevel === 5) {
+            sysPrompt += ` This is the Third Eye, seat of Lord Shiva (Tryambaka - the Three-Eyed One). You can teach about Shiva consciousness, Rudraksha beads (tears of Shiva), and the powerful MAHAMRITYUNJAYA MANTRA (Om Tryambakam Yajamahe...) - the Great Death-Conquering Mantra that opens the third eye and grants liberation from the cycle of death. This is the most sacred Shiva mantra for transcending illusion and awakening the third eye.`;
+          }
+          sysPrompt += ` Guide users through emotional intelligence, self-discovery, and manifestation practices. Reference the meditation practices and manifestation mantras when relevant. Be warm, wise, and supportive. Keep responses concise (2-3 paragraphs).`;
+          let msgs = gameState.conversationHistory.length === 0
+            ? [{ role: "user", content: `${sysPrompt}\n\nUser: ${userMsg}` }]
+            : [...gameState.conversationHistory, { role: "user", content: userMsg }];
+          const res = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 500, messages: msgs })
+          });
+          const data = await res.json();
+          setGameState(prev => ({ ...prev, loading: false, conversationHistory: [...prev.conversationHistory, { role: 'assistant', content: data.content[0].text }] }));
+        } catch (err) {
+          setGameState(prev => ({ ...prev, loading: false, conversationHistory: [...prev.conversationHistory, { role: 'assistant', content: 'I sense a disturbance in the cosmic energy. Please try again.' }] }));
+        }
+      };
+
+      const completeChakra = () => {
+        const next = gameState.guideLevel + 1;
+        if (next < chakras.length) {
+          setGameState(prev => ({ ...prev, unlockedLevels: [...prev.unlockedLevels, next], isConversing: false, conversationHistory: [] }));
+          setUiMessage(`${chakras[next].title} has been unlocked! Find the new portal.`);
+        } else {
+          setGameState(prev => ({ ...prev, isConversing: false, conversationHistory: [] }));
+          setTimeout(() => setShowCongratulations(true), 1000);
+        }
+      };
+
+      const resetGame = () => {
+        setGameState({ currentLevel: 0, unlockedLevels: [0], isConversing: false, conversationHistory: [], nearGuide: false, guideLevel: null, loading: false });
+        setMessage(''); setUiMessage('Welcome to your Chakra Journey. Begin at the Root Chakra (red orb).');
+        setShowAdvanced(false); setShowCongratulations(false); setShowWelcome(true);
+      };
+
+      const colorHex = (lvl) => `#${chakras[lvl]?.color.toString(16).padStart(6, '0')}`;
+
+      return (
+        <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+          <div ref={mountRef} style={{ width: '100%', height: '100%' }} />
+          
+          {/* Top Left HUD */}
+          <div style={{ position: 'absolute', top: 20, left: 20, color: 'white', fontFamily: 'Arial, sans-serif', backgroundColor: 'rgba(0, 0, 0, 0.7)', padding: '15px', borderRadius: '10px', maxWidth: '400px' }}>
+            <h3 style={{ margin: '0 0 10px 0', color: '#00ffff' }}>Chakra Journey</h3>
+            <p style={{ margin: '5px 0', fontSize: '14px' }}>{uiMessage}</p>
+            <p style={{ margin: '5px 0', fontSize: '12px', opacity: 0.8 }}>Controls: WASD to move | Arrow keys to look | E to interact</p>
+          </div>
+
+          {/* Exit Button */}
+          <button onClick={resetGame} onMouseEnter={(e) => { e.target.style.backgroundColor = '#ff4444'; e.target.style.transform = 'scale(1.05)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'rgba(255, 68, 68, 0.9)'; e.target.style.transform = 'scale(1)'; }} style={{ position: 'absolute', top: 20, right: 180, backgroundColor: 'rgba(255, 68, 68, 0.9)', border: '2px solid #ff4444', color: 'white', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', boxShadow: '0 0 10px rgba(255, 68, 68, 0.5)', transition: 'all 0.3s ease' }}>🚪 Exit</button>
+
+          {/* Chakra Progress */}
+          <div style={{ position: 'absolute', top: 20, right: 20, color: 'white', fontFamily: 'Arial, sans-serif', backgroundColor: 'rgba(0, 0, 0, 0.7)', padding: '15px', borderRadius: '10px' }}>
+            <h4 style={{ margin: '0 0 10px 0' }}>Chakras Unlocked</h4>
+            {chakras.map((c, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', margin: '5px 0', opacity: gameState.unlockedLevels.includes(i) ? 1 : 0.3 }}>
+                <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: colorHex(i), marginRight: '8px' }} />
+                <span style={{ fontSize: '12px' }}>{c.title}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Interaction Button */}
+          {gameState.nearGuide && !gameState.isConversing && gameState.guideLevel !== null && (
+            <div onClick={() => setGameState(prev => ({ ...prev, isConversing: true }))} style={{ position: 'absolute', bottom: '50%', left: '50%', transform: 'translate(-50%, 50%)', width: '80px', height: '80px', backgroundColor: 'rgba(0, 255, 255, 0.8)', border: '3px solid white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '40px', color: 'white', fontWeight: 'bold', animation: 'pulse 1.5s ease-in-out infinite', boxShadow: '0 0 20px rgba(0, 255, 255, 0.6)', userSelect: 'none' }}>→</div>
+          )}
+
+          {/* Welcome Screen */}
+          {showWelcome && (
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, animation: 'fadeIn 1s ease-out' }}>
+              <div style={{ maxWidth: '600px', padding: '40px', backgroundColor: 'rgba(10, 10, 26, 0.95)', borderRadius: '20px', border: '3px solid rgba(0, 255, 255, 0.5)', boxShadow: '0 0 50px rgba(0, 255, 255, 0.3)', color: 'white', fontFamily: 'Arial, sans-serif', textAlign: 'center', animation: 'glow 2s ease-in-out infinite' }}>
+                <h1 style={{ fontSize: '36px', margin: '0 0 20px 0', background: 'linear-gradient(135deg, #ff00ff, #00ffff, #00ff00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontWeight: 'bold' }}>🧘 7 Chakra Emotional Intelligence Simulator 🧘</h1>
+                <p style={{ fontSize: '18px', marginBottom: '30px', color: '#aaffff', lineHeight: '1.6' }}>Embark on a spiritual journey through the 7 chakras. Connect with AI-powered guides, practice ancient meditation techniques, and unlock your full potential.</p>
+                <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)', padding: '25px', borderRadius: '15px', marginBottom: '30px', border: '2px solid rgba(138, 43, 226, 0.5)', textAlign: 'left' }}>
+                  <h3 style={{ color: '#ff88ff', marginTop: 0, marginBottom: '15px', fontSize: '20px', textAlign: 'center' }}>🎮 Navigation Instructions</h3>
+                  <div style={{ fontSize: '14px', lineHeight: '2', color: '#ccddff' }}>
+                    <div style={{ marginBottom: '10px' }}><strong style={{ color: '#00ffff' }}>🚶 Movement:</strong><br/><span style={{ marginLeft: '20px' }}>• W - Move Forward</span><br/><span style={{ marginLeft: '20px' }}>• S - Move Backward</span><br/><span style={{ marginLeft: '20px' }}>• A - Move Left</span><br/><span style={{ marginLeft: '20px' }}>• D - Move Right</span></div>
+                    <div style={{ marginBottom: '10px' }}><strong style={{ color: '#00ffff' }}>👀 Camera:</strong><br/><span style={{ marginLeft: '20px' }}>• Left Arrow - Look Left</span><br/><span style={{ marginLeft: '20px' }}>• Right Arrow - Look Right</span></div>
+                    <div style={{ marginBottom: '10px' }}><strong style={{ color: '#00ffff' }}>💬 Interaction:</strong><br/><span style={{ marginLeft: '20px' }}>• E Key or Click Arrow Button - Talk to Chakra Guides</span><br/><span style={{ marginLeft: '20px' }}>• Walk close to glowing guides to interact</span></div>
+                    <div style={{ marginBottom: '10px' }}><strong style={{ color: '#00ffff' }}>🧘 Meditation Practices:</strong><br/><span style={{ marginLeft: '20px' }}>• Click BASIC/ADVANCED button to toggle views</span><br/><span style={{ marginLeft: '20px' }}>• BASIC: Mantras, Breathing, Mudras, Numerology</span><br/><span style={{ marginLeft: '20px' }}>• ADVANCED: Vortex Breathing, Vedic Programming,</span><br/><span style={{ marginLeft: '20px', paddingLeft: '8px' }}>Fibonacci, Manifestation Mantras, Shiva Wisdom</span></div>
+                    <div><strong style={{ color: '#00ffff' }}>✨ Journey:</strong><br/><span style={{ marginLeft: '20px' }}>• Start at Root Chakra (Red)</span><br/><span style={{ marginLeft: '20px' }}>• Complete each chakra to unlock the next</span><br/><span style={{ marginLeft: '20px' }}>• Explore Basic & Advanced meditation practices</span><br/><span style={{ marginLeft: '20px' }}>• Reach Crown Chakra for enlightenment</span></div>
+                  </div>
+                </div>
+                <button onClick={() => setShowWelcome(false)} onMouseEnter={(e) => { e.target.style.backgroundColor = '#00ffff'; e.target.style.color = '#000'; e.target.style.transform = 'scale(1.1)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#00ffff'; e.target.style.transform = 'scale(1)'; }} style={{ fontSize: '22px', padding: '18px 50px', backgroundColor: 'transparent', border: '3px solid #00ffff', borderRadius: '50px', color: '#00ffff', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 0 20px rgba(0, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '2px' }}>🕉️ Begin Your Journey 🕉️</button>
+                <p style={{ marginTop: '20px', fontSize: '12px', color: '#8888aa', fontStyle: 'italic' }}>Powered by Claude AI • Ancient Wisdom meets Modern Technology</p>
+                <p style={{ marginTop: '15px', fontSize: '11px', color: '#666' }}>© 2025 Disha Biswas. All Rights Reserved.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Congratulations Screen */}
+          {showCongratulations && (
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, animation: 'fadeIn 1s ease-out' }}>
+              <div style={{ maxWidth: '700px', padding: '50px', backgroundColor: 'rgba(10, 10, 26, 0.95)', borderRadius: '20px', border: '3px solid rgba(255, 215, 0, 0.8)', boxShadow: '0 0 60px rgba(255, 215, 0, 0.5), 0 0 100px rgba(138, 43, 226, 0.3)', color: 'white', fontFamily: 'Arial, sans-serif', textAlign: 'center', animation: 'glow 2s ease-in-out infinite' }}>
+                <div style={{ fontSize: '80px', marginBottom: '20px', animation: 'pulse 2s ease-in-out infinite' }}>🙏</div>
+                <h1 style={{ fontSize: '42px', margin: '0 0 20px 0', background: 'linear-gradient(135deg, #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #4400ff, #ff00ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontWeight: 'bold', letterSpacing: '2px' }}>CONGRATULATIONS!</h1>
+                <h2 style={{ fontSize: '24px', color: '#ffd700', marginBottom: '30px', fontWeight: 'normal', fontStyle: 'italic' }}>You have balanced all 7 Chakras</h2>
+                <p style={{ fontSize: '18px', marginBottom: '30px', color: '#aaffff', lineHeight: '1.8', padding: '0 20px' }}>You have completed your journey through the chakra system, from the grounding energy of Muladhara to the divine consciousness of Sahasrara. You have learned ancient meditation techniques, connected with spiritual guides, and unlocked the wisdom of the Vedas.</p>
+                <div style={{ backgroundColor: 'rgba(138, 43, 226, 0.3)', padding: '25px', borderRadius: '15px', marginBottom: '30px', border: '2px solid rgba(138, 43, 226, 0.6)' }}>
+                  <h3 style={{ color: '#ff88ff', marginTop: 0, marginBottom: '15px', fontSize: '20px' }}>✨ Your Journey Achievements ✨</h3>
+                  <div style={{ fontSize: '15px', lineHeight: '2', color: '#ccddff', textAlign: 'left' }}>
+                    <div style={{ marginBottom: '8px' }}>🔴 <strong>Muladhara</strong> - Grounded in stability and security</div>
+                    <div style={{ marginBottom: '8px' }}>🟠 <strong>Svadhishthana</strong> - Flowing with creativity and emotion</div>
+                    <div style={{ marginBottom: '8px' }}>🟡 <strong>Manipura</strong> - Empowered with personal power</div>
+                    <div style={{ marginBottom: '8px' }}>🟢 <strong>Anahata</strong> - Opened to unconditional love</div>
+                    <div style={{ marginBottom: '8px' }}>🔵 <strong>Vishuddha</strong> - Expressing authentic truth</div>
+                    <div style={{ marginBottom: '8px' }}>🟣 <strong>Ajna</strong> - Awakened to inner wisdom</div>
+                    <div>💜 <strong>Sahasrara</strong> - Connected to universal consciousness</div>
+                  </div>
+                </div>
+                <p style={{ fontSize: '16px', color: '#ffaa00', marginBottom: '35px', fontStyle: 'italic' }}>"Aham Brahmasmi" - I am the Universe 🕉️</p>
+                <button onClick={resetGame} onMouseEnter={(e) => { e.target.style.backgroundColor = '#ffd700'; e.target.style.color = '#000'; e.target.style.transform = 'scale(1.1)'; }} onMouseLeave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#ffd700'; e.target.style.transform = 'scale(1)'; }} style={{ fontSize: '22px', padding: '18px 50px', backgroundColor: 'transparent', border: '3px solid #ffd700', borderRadius: '50px', color: '#ffd700', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 0 20px rgba(255, 215, 0, 0.5)', textTransform: 'uppercase', letterSpacing: '2px', marginRight: '15px' }}>🔄 Replay Journey</button>
+                <p style={{ marginTop: '30px', fontSize: '14px', color: '#8888aa', fontStyle: 'italic' }}>May your chakras remain balanced. Namaste 🙏</p>
+                <p style={{ marginTop: '20px', fontSize: '11px', color: '#666' }}>© 2025 Disha Biswas. All Rights Reserved.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Conversation Panel */}
+          {gameState.isConversing && gameState.guideLevel !== null && (
+            <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', width: '800px', maxHeight: '500px', display: 'flex', gap: '15px' }}>
+              {/* Meditation Practices Panel */}
+              <div style={{ flex: '0 0 320px', backgroundColor: 'rgba(0, 0, 0, 0.95)', border: `2px solid ${colorHex(gameState.guideLevel)}`, borderRadius: '15px', padding: '15px', color: 'white', fontFamily: 'Arial, sans-serif', overflowY: 'auto', maxHeight: '500px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                  <h3 style={{ margin: 0, color: colorHex(gameState.guideLevel), fontSize: '16px' }}>Meditation Practices</h3>
+                  <button onClick={() => setShowAdvanced(!showAdvanced)} style={{ background: showAdvanced ? 'linear-gradient(135deg, #ff00ff, #00ffff)' : 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.3)', color: 'white', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer', fontSize: '10px', fontWeight: 'bold' }}>{showAdvanced ? 'ADVANCED' : 'BASIC'}</button>
+                </div>
+
+                {!showAdvanced ? (
+                  <>
+                    <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                      <div style={{ fontSize: '11px', opacity: 0.7, marginBottom: '5px' }}>MANTRA</div>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', margin: '8px 0' }}>{chakras[gameState.guideLevel].mantra}</div>
+                    </div>
+                    <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
+                      <div style={{ fontSize: '11px', opacity: 0.7 }}>BREATHING</div>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#00ffff' }}>{chakras[gameState.guideLevel].breathing}</div>
+                      <div style={{ fontSize: '12px', marginTop: '8px' }}>{chakras[gameState.guideLevel].breathingDetail}</div>
+                    </div>
+                    <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
+                      <div style={{ fontSize: '11px', opacity: 0.7 }}>MUDRA</div>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#ffaa00' }}>{chakras[gameState.guideLevel].mudra}</div>
+                      <div style={{ fontSize: '12px', marginTop: '8px' }}>{chakras[gameState.guideLevel].mudraDetail}</div>
+                    </div>
+                    <div style={{ backgroundColor: 'rgba(138, 43, 226, 0.15)', padding: '12px', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '11px', opacity: 0.7 }}>NUMEROLOGY</div>
+                      <div style={{ fontSize: '12px', marginTop: '5px' }}>{chakras[gameState.guideLevel].numerology}</div>
+                      <div style={{ fontSize: '11px', marginTop: '8px', fontStyle: 'italic', opacity: 0.8 }}>{chakras[gameState.guideLevel].reasoning}</div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ backgroundColor: 'rgba(138, 43, 226, 0.2)', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '2px solid rgba(138, 43, 226, 0.5)' }}>
+                      <div style={{ fontSize: '11px', color: '#ff00ff' }}>VORTEX BREATHING</div>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#00ffff' }}>{chakras[gameState.guideLevel].vortexBreathing}</div>
+                      <div style={{ fontSize: '12px', marginTop: '8px' }}>{chakras[gameState.guideLevel].vortexDetail}</div>
+                      <div style={{ fontSize: '10px', marginTop: '8px', fontStyle: 'italic', opacity: 0.8 }}>{chakras[gameState.guideLevel].vortexReasoning}</div>
+                    </div>
+                    <div style={{ backgroundColor: 'rgba(255, 140, 0, 0.15)', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '2px solid rgba(255, 140, 0, 0.4)' }}>
+                      <div style={{ fontSize: '11px', color: '#ffaa00' }}>VEDIC PROGRAMMING</div>
+                      <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#ff6b6b', marginTop: '6px' }}>{chakras[gameState.guideLevel].bhagavadGita}</div>
+                      <div style={{ fontSize: '12px', marginTop: '8px', fontStyle: 'italic' }}>{chakras[gameState.guideLevel].vedicProgramming}</div>
+                      <div style={{ fontSize: '11px', marginTop: '8px', padding: '8px', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '5px' }}>{chakras[gameState.guideLevel].sanskritNLP}</div>
+                    </div>
+                    <div style={{ backgroundColor: 'rgba(255, 215, 0, 0.15)', padding: '12px', borderRadius: '8px', marginBottom: '12px', border: '2px solid rgba(255, 215, 0, 0.4)' }}>
+                      <div style={{ fontSize: '11px', color: '#ffd700' }}>FIBONACCI & GOLDEN RATIO</div>
+                      <div style={{ fontSize: '13px', fontWeight: 'bold', marginTop: '6px' }}>{chakras[gameState.guideLevel].fibonacciSequence}</div>
+                      <div style={{ fontSize: '16px', textAlign: 'center', margin: '8px 0', fontWeight: 'bold', color: '#ffff00' }}>{chakras[gameState.guideLevel].fibonacciMantra}</div>
+                      <div style={{ fontSize: '11px', marginTop: '8px' }}>{chakras[gameState.guideLevel].goldenRatio}</div>
+                    </div>
+                    <div style={{ backgroundColor: 'rgba(0, 255, 127, 0.15)', padding: '12px', borderRadius: '8px', border: '2px solid rgba(0, 255, 127, 0.4)' }}>
+                      <div style={{ fontSize: '11px', color: '#00ff7f' }}>MANIFESTATION MANTRA</div>
+                      <div style={{ fontSize: '18px', textAlign: 'center', margin: '10px 0', fontWeight: 'bold', color: '#00ffaa', lineHeight: '1.6' }}>{chakras[gameState.guideLevel].manifestationMantra}</div>
+                      <div style={{ fontSize: '12px', textAlign: 'center', fontStyle: 'italic', color: '#aaffaa', marginBottom: '10px' }}>{chakras[gameState.guideLevel].manifestationMeaning}</div>
+                      <div style={{ fontSize: '10px', fontStyle: 'italic', opacity: 0.8, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}><strong>Manifestation Power:</strong> {chakras[gameState.guideLevel].manifestationReasoning}</div>
+                    </div>
+
+                    {/* Third Eye Special Sections */}
+                    {gameState.guideLevel === 5 && (
+                      <>
+                        <div style={{ backgroundColor: 'rgba(138, 43, 226, 0.25)', padding: '12px', borderRadius: '8px', marginTop: '12px', border: '3px solid rgba(138, 43, 226, 0.6)' }}>
+                          <div style={{ fontSize: '12px', color: '#ff00ff', fontWeight: 'bold', marginBottom: '8px', textAlign: 'center' }}>🔱 LORD SHIVA & THE THIRD EYE 🔱</div>
+                          <div style={{ fontSize: '11px', lineHeight: '1.6', marginBottom: '10px' }}>{chakras[5].shivaImportance}</div>
+                        </div>
+                        <div style={{ backgroundColor: 'rgba(75, 0, 130, 0.3)', padding: '14px', borderRadius: '8px', marginTop: '12px', border: '3px solid rgba(138, 43, 226, 0.8)', boxShadow: '0 0 15px rgba(138, 43, 226, 0.4)' }}>
+                          <div style={{ fontSize: '13px', color: '#ff88ff', fontWeight: 'bold', marginBottom: '12px', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px' }}>ॐ MAHAMRITYUNJAYA MANTRA ॐ</div>
+                          <div style={{ fontSize: '15px', textAlign: 'center', padding: '12px', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '8px', border: '2px solid rgba(255, 0, 255, 0.4)', lineHeight: '2', color: '#ffddff', fontWeight: 'bold', fontFamily: 'serif' }}>ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम्<br/>उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय मामृतात्</div>
+                          <div style={{ fontSize: '12px', textAlign: 'center', padding: '12px', backgroundColor: 'rgba(0, 0, 0, 0.4)', borderRadius: '8px', border: '2px solid rgba(255, 0, 255, 0.3)', marginTop: '10px', lineHeight: '1.8', color: '#ffaaff', fontWeight: '600' }}>Om Tryambakam Yajamahe<br/>Sugandhim Pushti-Vardhanam<br/>Urvarukamiva Bandhanan<br/>Mrityor Mukshiya Maamritat</div>
+                          <div style={{ fontSize: '11px', textAlign: 'center', color: '#ccaaff', marginTop: '12px', lineHeight: '1.7', padding: '10px', backgroundColor: 'rgba(0, 0, 0, 0.3)', borderRadius: '5px' }}>We worship the Three-Eyed One (Shiva), who is fragrant and nourishes all beings. May He liberate us from death for the sake of immortality, even as the cucumber is severed from its bondage to the vine.</div>
+                          <div style={{ fontSize: '10px', marginTop: '12px', lineHeight: '1.7', backgroundColor: 'rgba(0, 255, 127, 0.15)', padding: '10px', borderRadius: '5px', border: '2px solid rgba(0, 255, 127, 0.4)' }}><strong style={{ color: '#00ff7f', fontSize: '11px' }}>✨ Manifestation Power:</strong><br/>The Great Death-Conquering Mantra invokes Lord Shiva as Tryambaka. It creates divine protection, liberation from karmic patterns, healing at all levels, Kundalini awakening through Ajna chakra, direct connection to Mahadeva for instant manifestation, transcendence of time-space limitations, and immortality consciousness - freedom from fear of death.</div>
+                        </div>
+                        <div style={{ backgroundColor: 'rgba(139, 69, 19, 0.2)', padding: '12px', borderRadius: '8px', marginTop: '12px', border: '2px solid rgba(205, 133, 63, 0.5)' }}>
+                          <div style={{ fontSize: '12px', color: '#daa520', fontWeight: 'bold', marginBottom: '8px', textAlign: 'center' }}>📿 RUDRAKSHA MANIFESTATION POWER 📿</div>
+                          <div style={{ fontSize: '11px', lineHeight: '1.6' }}>{chakras[5].rudrakshaPower}</div>
+                          <div style={{ fontSize: '10px', marginTop: '8px', padding: '6px', backgroundColor: 'rgba(0, 0, 0, 0.2)', borderRadius: '4px', fontStyle: 'italic' }}>💡 Wear 2-mukhi or 6-mukhi Rudraksha during Third Eye meditation to amplify Shiva consciousness</div>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Chat Panel */}
+              <div style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.9)', border: '2px solid #00ffff', borderRadius: '15px', padding: '20px', color: 'white', fontFamily: 'Arial, sans-serif', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                  <h3 style={{ margin: 0, color: '#00ffff' }}>{chakras[gameState.guideLevel]?.title || 'Chakra'} Guide</h3>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    {gameState.guideLevel < chakras.length - 1 && <button onClick={completeChakra} style={{ background: 'linear-gradient(135deg, #00ff88, #00ffff)', border: 'none', color: 'black', padding: '8px 15px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Complete Chakra</button>}
+                    {gameState.guideLevel === chakras.length - 1 && <button onClick={completeChakra} style={{ background: 'linear-gradient(135deg, #ff00ff, #ffff00)', border: 'none', color: 'black', padding: '8px 15px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>Complete Journey</button>}
+                    <button onClick={() => setGameState(prev => ({ ...prev, isConversing: false }))} style={{ background: '#ff4444', border: 'none', color: 'white', padding: '8px 15px', borderRadius: '5px', cursor: 'pointer', fontSize: '12px' }}>Close</button>
+                  </div>
+                </div>
+                <div style={{ flex: 1, overflowY: 'auto', marginBottom: '15px', padding: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px' }}>
+                  {gameState.conversationHistory.map((msg, i) => (
+                    <div key={i} style={{ marginBottom: '10px', padding: '10px', borderRadius: '8px', backgroundColor: msg.role === 'user' ? 'rgba(0, 100, 255, 0.2)' : 'rgba(0, 255, 200, 0.2)', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
+                      <strong>{msg.role === 'user' ? 'You' : 'Guide'}:</strong>
+                      <p style={{ margin: '5px 0 0 0', fontSize: '14px' }}>{msg.content}</p>
+                    </div>
+                  ))}
+                  {gameState.loading && <div style={{ textAlign: 'center', color: '#00ffff' }}>Guide is channeling wisdom...</div>}
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && sendMessage()} placeholder="Share your thoughts..." disabled={gameState.loading} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #00ffff', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: 'white', fontSize: '14px' }} />
+                  <button onClick={sendMessage} disabled={gameState.loading} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#00ffff', color: 'black', fontWeight: 'bold', cursor: gameState.loading ? 'not-allowed' : 'pointer', opacity: gameState.loading ? 0.5 : 1 }}>Send</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    ReactDOM.render(<ChakraMeditationGame />, document.getElementById('root'));
+  </script>
+</body>
+</html>
